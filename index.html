@@ -27,7 +27,21 @@
         }
     </style>
 </head>
-<script>
+
+<body>
+    <div class="upload-box">
+        <h2>Upload File</h2>
+        <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
+        <p>Supports CSV and Excel formats</p>
+    </div>
+    <div id="file-info">
+    </div>
+
+    <div class="privacy-note">
+        <strong>Privacy Guarantee:</strong> Your data never leaves your browser, we don't store any information
+    </div>
+    
+    <script>
     // Get the file upload element
     document.getElementById('file-upload').addEventListener('change', function (event) {
         // Triggered when user selects a file
@@ -45,19 +59,6 @@
         }
     });
 </script>
-
-<body>
-    <div class="upload-box">
-        <h2>Upload File</h2>
-        <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
-        <p>Supports CSV and Excel formats</p>
-    </div>
-    <div id="file-info">
-    </div>
-
-    <div class="privacy-note">
-        <strong>Privacy Guarantee:</strong> Your data never leaves your browser, we don't store any information
-    </div>
 </body>
 
 </html>
