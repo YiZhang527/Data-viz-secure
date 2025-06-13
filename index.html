@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Secure Data Visualization Platform</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .upload-box {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .privacy-note {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-left: 3px solid green;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<script>
+    // Get the file upload element
+    document.getElementById('file-upload').addEventListener('change', function (event) {
+        // Triggered when user selects a file
+        const file = event.target.files[0];
+
+        if (file) {
+            // Display file information
+            const fileInfo = document.getElementById('file-info');
+            fileInfo.innerHTML = `
+                <h3>Selected File:</h3>
+                <p>File name: ${file.name}</p>
+                <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
+                <p>File type: ${file.type || 'Unknown'}</p>
+            `;
+        }
+    });
+</script>
+
+<body>
+    <div class="upload-box">
+        <h2>Upload File</h2>
+        <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
+        <p>Supports CSV and Excel formats</p>
+    </div>
+    <div id="file-info">
+    </div>
+
+    <div class="privacy-note">
+        <strong>Privacy Guarantee:</strong> Your data never leaves your browser, we don't store any information
+    </div>
+</body>
+
+</html>
