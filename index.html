@@ -146,6 +146,8 @@
             // Update the cleaning results display
             document.getElementById('cleaning-results').innerHTML =
                 `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
+            // Show download button
+            document.getElementById('download-cleaned-data').style.display = 'inline-block';
         });
 
         // Add event listener for the "Download Cleaned Data" button
