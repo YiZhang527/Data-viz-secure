@@ -25,7 +25,23 @@
             border-left: 3px solid green;
             margin-top: 20px;
         }
+
+        .clean-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .clean-btn:hover {
+            background-color: #45a049;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -36,29 +52,102 @@
     </div>
     <div id="file-info">
     </div>
-
-    <div class="privacy-note">
-        <strong>Privacy Guarantee:</strong> Your data never leaves your browser, we don't store any information
+    <div id="data-cleaning"
+        style="display:none; margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+        <h3>Data Cleaning Options</h3>
+        <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+        <div id="cleaning-results"
+            style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #4CAF50;"></div>
     </div>
-    
-    <script>
-    // Get the file upload element
-    document.getElementById('file-upload').addEventListener('change', function (event) {
-        // Triggered when user selects a file
-        const file = event.target.files[0];
+    <div class="privacy-note">
+        <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your browser
+        - we never store, transmit, or access your information.
+    </div>
 
-        if (file) {
-            // Display file information
-            const fileInfo = document.getElementById('file-info');
-            fileInfo.innerHTML = `
-                <h3>Selected File:</h3>
-                <p>File name: ${file.name}</p>
-                <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
-                <p>File type: ${file.type || 'Unknown'}</p>
-            `;
-        }
-    });
-</script>
+    <script>
+        // Get the file upload element
+        document.getElementById('file-upload').addEventListener('change', function (event) {
+            // Triggered when user selects a file
+            const file = event.target.files[0];
+
+            if (file) {
+                // Display file information
+                const fileInfo = document.getElementById('file-info');
+                fileInfo.innerHTML = `
+        <h3>Selected File:</h3>
+        <p>File name: ${file.name}</p>
+        <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
+        `;
+
+                // Create FileReader object to read the file
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Get file data
+                    const data = e.target.result;
+
+                    // Parse data using xlsx library
+                    const workbook = XLSX.read(data, { type: 'binary' });
+
+                    // Get the first worksheet
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    // Convert worksheet to JSON format
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+
+                    // Store original data
+                    window.originalData = jsonData;
+
+                    // Show data cleaning options
+                    document.getElementById('data-cleaning').style.display = 'block';
+                };
+
+                // Read file as binary string
+                reader.readAsBinaryString(file);
+            }
+        });
+
+        // Add event listener for the "Remove Empty Rows" button
+        document.getElementById('remove-empty-rows').addEventListener('click', function () {
+            // Get the original data
+            const originalData = window.originalData;
+
+            // Create an array to store the cleaned data
+            const cleanedData = [];
+
+            // Loop through all rows
+            for (let i = 0; i < originalData.length; i++) {
+                const row = originalData[i];
+                let rowHasData = false;
+
+                // Check if the row has any non-empty cells
+                for (let j = 0; j < row.length; j++) {
+                    // If the cell is not empty and not just whitespace, then the row has data
+                    if (row[j] !== "" && row[j].toString().trim() !== "") {
+                        rowHasData = true;
+                        break;
+                    }
+                }
+
+                // If the row has data, keep this row
+                if (rowHasData) {
+                    cleanedData.push(row);
+                }
+            }
+
+            // Save the cleaned data
+            window.cleanedData = cleanedData;
+
+            // Calculate the number of removed rows
+            const removedRowsCount = originalData.length - cleanedData.length;
+
+            // Update the cleaning results display
+            document.getElementById('cleaning-results').innerHTML =
+                `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
+        });
+    </script>
+
 </body>
 
 </html>
