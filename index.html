@@ -56,6 +56,7 @@
         style="display:none; margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
         <h3>Data Cleaning Options</h3>
         <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+        <button id="download-cleaned-data" class="clean-btn" style="display:none;">Download Cleaned Data</button>
         <div id="cleaning-results"
             style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #4CAF50;"></div>
     </div>
@@ -145,6 +146,25 @@
             // Update the cleaning results display
             document.getElementById('cleaning-results').innerHTML =
                 `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
+        });
+
+        // Add event listener for the "Download Cleaned Data" button
+        document.getElementById('download-cleaned-data').addEventListener('click', function () {
+            // Check if cleaned data exists
+            if (!window.cleanedData || window.cleanedData.length === 0) {
+                alert('No cleaned data available. Please clean data first.');
+                return;
+            }
+
+            // Convert JSON data back to worksheet
+            const ws = XLSX.utils.aoa_to_sheet(window.cleanedData);
+
+            // Create a new workbook and add the worksheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Cleaned Data');
+
+            // Generate the Excel file and download it
+            XLSX.writeFile(wb, 'cleaned_data.xlsx');
         });
     </script>
 
