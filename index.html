@@ -56,6 +56,7 @@
         style="display:none; margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
         <h3>Data Cleaning Options</h3>
         <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+        <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
         <button id="download-cleaned-data" class="clean-btn" style="display:none;">Download Cleaned Data</button>
         <div id="cleaning-results"
             style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #4CAF50;"></div>
@@ -143,12 +144,134 @@
             // Calculate the number of removed rows
             const removedRowsCount = originalData.length - cleanedData.length;
 
+
             // Update the cleaning results display
             document.getElementById('cleaning-results').innerHTML =
                 `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
             // Show download button
             document.getElementById('download-cleaned-data').style.display = 'inline-block';
         });
+
+        // Add event listener for the "Detect Outliers" button
+        document.getElementById('detect-outliers').addEventListener('click', function () {
+            // Check if data has been loaded
+            if (!window.originalData || window.originalData.length === 0) {
+                alert('Please upload a file first.');
+                return;
+            }
+
+            // Execute outlier detection
+            detectOutliersSimple();
+        });
+        // Simplified outlier detection function
+        function detectOutliersSimple() {
+            // Get the original data
+            const data = window.originalData;
+
+            // Create a copy of the data for cleaning
+            const cleanedData = JSON.parse(JSON.stringify(data));
+
+            // Assume the first row is the header
+            const headers = data[0];
+
+            // Track outlier information
+            let totalOutliers = 0;
+            let columnResults = [];
+
+            // Loop through all columns
+            for (let colIndex = 0; colIndex < headers.length; colIndex++) {
+                // Collect numeric values for this column
+                const numericValues = [];
+                const valuePositions = []; // Record the row index for each value
+
+                // Start from the second row (skip header)
+                for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
+                    if (data[rowIndex].length <= colIndex) continue;
+
+                    const value = data[rowIndex][colIndex];
+                    if (value !== "" && !isNaN(Number(value))) {
+                        numericValues.push(Number(value));
+                        valuePositions.push(rowIndex);
+                    }
+                }
+
+                // If there's not enough numeric data, skip this column
+                if (numericValues.length < 2) continue;
+
+                // Calculate mean and standard deviation
+                const mean = numericValues.reduce((sum, val) => sum + val, 0) / numericValues.length;
+                const squaredDiffs = numericValues.map(val => Math.pow(val - mean, 2));
+                const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / numericValues.length;
+                const stdDev = Math.sqrt(variance);
+
+                // Use Z-score method to detect outliers
+                const outliers = [];
+
+                for (let i = 0; i < numericValues.length; i++) {
+                    const value = numericValues[i];
+                    const rowIndex = valuePositions[i];
+                    const zScore = (value - mean) / stdDev;
+
+                    // If Z-score exceeds ±3, consider it an outlier
+                    if (Math.abs(zScore) > 3) {
+                        outliers.push({
+                            row: rowIndex,
+                            value: value,
+                            zScore: zScore
+                        });
+
+                        // Replace outliers with null in the cleaned data
+                        cleanedData[rowIndex][colIndex] = null;
+                    }
+                }
+
+                // Update statistics
+                totalOutliers += outliers.length;
+
+                // Record results for this column
+                if (outliers.length > 0) {
+                    const columnName = headers[colIndex] || `Column ${colIndex + 1}`;
+                    columnResults.push({
+                        name: columnName,
+                        outlierCount: outliers.length,
+                        mean: mean,
+                        stdDev: stdDev
+                    });
+                }
+            }
+
+            // Save the cleaned data
+            window.cleanedData = cleanedData;
+
+            // Display results
+            displayOutlierResultsSimple(columnResults, totalOutliers);
+
+            // Show download button
+            if (totalOutliers > 0) {
+                document.getElementById('download-cleaned-data').style.display = 'inline-block';
+            }
+        }
+
+        // Display outlier detection results
+        function displayOutlierResultsSimple(columnResults, totalOutliers) {
+            const resultsDiv = document.getElementById('cleaning-results');
+
+            if (totalOutliers > 0) {
+                let resultsHTML = `<p>Detected <strong>${totalOutliers}</strong> outliers across ${columnResults.length} columns using Z-score method (threshold: ±3).</p>`;
+
+                resultsHTML += '<ul>';
+                columnResults.forEach(col => {
+                    resultsHTML += `<li><strong>${col.name}</strong>: ${col.outlierCount} outliers found (mean: ${col.mean.toFixed(2)}, std dev: ${col.stdDev.toFixed(2)})</li>`;
+                });
+                resultsHTML += '</ul>';
+
+                resultsHTML += '<p>Outliers have been replaced with empty values in the cleaned data.</p>';
+
+                resultsDiv.innerHTML = resultsHTML;
+            } else {
+                resultsDiv.innerHTML = '<p>No outliers were found using Z-score method (threshold: ±3).</p>';
+            }
+        }
 
         // Add event listener for the "Download Cleaned Data" button
         document.getElementById('download-cleaned-data').addEventListener('click', function () {
