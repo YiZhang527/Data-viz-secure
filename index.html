@@ -51,247 +51,251 @@
         <p>Supports CSV and Excel formats</p>
     </div>
     <div id="file-info">
-    </div>
-    <div id="data-cleaning"
-        style="display:none; margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-        <h3>Data Cleaning Options</h3>
-        <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
-        <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
-        <button id="download-cleaned-data" class="clean-btn" style="display:none;">Download Cleaned Data</button>
-        <div id="cleaning-results"
-            style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #4CAF50;"></div>
-    </div>
-    <div class="privacy-note">
-        <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your browser
-        - we never store, transmit, or access your information.
-    </div>
+        <div id="data-cleaning"
+            style="display:none; margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+            <h3>Data Cleaning Options</h3>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px;">
+                <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
+                <button id="download-cleaned-data" class="clean-btn" style="display:none;">Download Cleaned
+                    Data</button>
+            </div>
+            <div id="cleaning-results"
+                style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #4CAF50;">
+            </div>
+        </div>
+        <div class="privacy-note">
+            <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your
+            browser
+            - we never store, transmit, or access your information.
+        </div>
 
-    <script>
-        // Get the file upload element
-        document.getElementById('file-upload').addEventListener('change', function (event) {
-            // Triggered when user selects a file
-            const file = event.target.files[0];
+        <script>
+            // Get the file upload element
+            document.getElementById('file-upload').addEventListener('change', function (event) {
+                // Triggered when user selects a file
+                const file = event.target.files[0];
 
-            if (file) {
-                // Display file information
-                const fileInfo = document.getElementById('file-info');
-                fileInfo.innerHTML = `
+                if (file) {
+                    // Display file information
+                    const fileInfo = document.getElementById('file-info');
+                    fileInfo.innerHTML = `
         <h3>Selected File:</h3>
         <p>File name: ${file.name}</p>
         <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
         `;
 
-                // Create FileReader object to read the file
-                const reader = new FileReader();
+                    // Create FileReader object to read the file
+                    const reader = new FileReader();
 
-                reader.onload = function (e) {
-                    // Get file data
-                    const data = e.target.result;
+                    reader.onload = function (e) {
+                        // Get file data
+                        const data = e.target.result;
 
-                    // Parse data using xlsx library
-                    const workbook = XLSX.read(data, { type: 'binary' });
+                        // Parse data using xlsx library
+                        const workbook = XLSX.read(data, { type: 'binary' });
 
-                    // Get the first worksheet
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
+                        // Get the first worksheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
 
-                    // Convert worksheet to JSON format
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                        // Convert worksheet to JSON format
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
-                    // Store original data
-                    window.originalData = jsonData;
+                        // Store original data
+                        window.originalData = jsonData;
 
-                    // Show data cleaning options
-                    document.getElementById('data-cleaning').style.display = 'block';
-                };
+                        // Show data cleaning options
+                        document.getElementById('data-cleaning').style.display = 'block';
+                    };
 
-                // Read file as binary string
-                reader.readAsBinaryString(file);
-            }
-        });
+                    // Read file as binary string
+                    reader.readAsBinaryString(file);
+                }
+            });
 
-        // Add event listener for the "Remove Empty Rows" button
-        document.getElementById('remove-empty-rows').addEventListener('click', function () {
-            // Get the original data
-            const originalData = window.originalData;
+            // Add event listener for the "Remove Empty Rows" button
+            document.getElementById('remove-empty-rows').addEventListener('click', function () {
+                // Get the original data
+                const originalData = window.originalData;
 
-            // Create an array to store the cleaned data
-            const cleanedData = [];
+                // Create an array to store the cleaned data
+                const cleanedData = [];
 
-            // Loop through all rows
-            for (let i = 0; i < originalData.length; i++) {
-                const row = originalData[i];
-                let rowHasData = false;
+                // Loop through all rows
+                for (let i = 0; i < originalData.length; i++) {
+                    const row = originalData[i];
+                    let rowHasData = false;
 
-                // Check if the row has any non-empty cells
-                for (let j = 0; j < row.length; j++) {
-                    // If the cell is not empty and not just whitespace, then the row has data
-                    if (row[j] !== "" && row[j].toString().trim() !== "") {
-                        rowHasData = true;
-                        break;
+                    // Check if the row has any non-empty cells
+                    for (let j = 0; j < row.length; j++) {
+                        // If the cell is not empty and not just whitespace, then the row has data
+                        if (row[j] !== "" && row[j].toString().trim() !== "") {
+                            rowHasData = true;
+                            break;
+                        }
+                    }
+
+                    // If the row has data, keep this row
+                    if (rowHasData) {
+                        cleanedData.push(row);
                     }
                 }
 
-                // If the row has data, keep this row
-                if (rowHasData) {
-                    cleanedData.push(row);
-                }
-            }
+                // Save the cleaned data
+                window.cleanedData = cleanedData;
 
-            // Save the cleaned data
-            window.cleanedData = cleanedData;
-
-            // Calculate the number of removed rows
-            const removedRowsCount = originalData.length - cleanedData.length;
+                // Calculate the number of removed rows
+                const removedRowsCount = originalData.length - cleanedData.length;
 
 
-            // Update the cleaning results display
-            document.getElementById('cleaning-results').innerHTML =
-                `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
-            // Show download button
-            document.getElementById('download-cleaned-data').style.display = 'inline-block';
-        });
-
-        // Add event listener for the "Detect Outliers" button
-        document.getElementById('detect-outliers').addEventListener('click', function () {
-            // Check if data has been loaded
-            if (!window.originalData || window.originalData.length === 0) {
-                alert('Please upload a file first.');
-                return;
-            }
-
-            // Execute outlier detection
-            detectOutliersSimple();
-        });
-        // Simplified outlier detection function
-        function detectOutliersSimple() {
-            // Get the original data
-            const data = window.originalData;
-
-            // Create a copy of the data for cleaning
-            const cleanedData = JSON.parse(JSON.stringify(data));
-
-            // Assume the first row is the header
-            const headers = data[0];
-
-            // Track outlier information
-            let totalOutliers = 0;
-            let columnResults = [];
-
-            // Loop through all columns
-            for (let colIndex = 0; colIndex < headers.length; colIndex++) {
-                // Collect numeric values for this column
-                const numericValues = [];
-                const valuePositions = []; // Record the row index for each value
-
-                // Start from the second row (skip header)
-                for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
-                    if (data[rowIndex].length <= colIndex) continue;
-
-                    const value = data[rowIndex][colIndex];
-                    if (value !== "" && !isNaN(Number(value))) {
-                        numericValues.push(Number(value));
-                        valuePositions.push(rowIndex);
-                    }
-                }
-
-                // If there's not enough numeric data, skip this column
-                if (numericValues.length < 2) continue;
-
-                // Calculate mean and standard deviation
-                const mean = numericValues.reduce((sum, val) => sum + val, 0) / numericValues.length;
-                const squaredDiffs = numericValues.map(val => Math.pow(val - mean, 2));
-                const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / numericValues.length;
-                const stdDev = Math.sqrt(variance);
-
-                // Use Z-score method to detect outliers
-                const outliers = [];
-
-                for (let i = 0; i < numericValues.length; i++) {
-                    const value = numericValues[i];
-                    const rowIndex = valuePositions[i];
-                    const zScore = (value - mean) / stdDev;
-
-                    // If Z-score exceeds ±3, consider it an outlier
-                    if (Math.abs(zScore) > 3) {
-                        outliers.push({
-                            row: rowIndex,
-                            value: value,
-                            zScore: zScore
-                        });
-
-                        // Replace outliers with null in the cleaned data
-                        cleanedData[rowIndex][colIndex] = null;
-                    }
-                }
-
-                // Update statistics
-                totalOutliers += outliers.length;
-
-                // Record results for this column
-                if (outliers.length > 0) {
-                    const columnName = headers[colIndex] || `Column ${colIndex + 1}`;
-                    columnResults.push({
-                        name: columnName,
-                        outlierCount: outliers.length,
-                        mean: mean,
-                        stdDev: stdDev
-                    });
-                }
-            }
-
-            // Save the cleaned data
-            window.cleanedData = cleanedData;
-
-            // Display results
-            displayOutlierResultsSimple(columnResults, totalOutliers);
-
-            // Show download button
-            if (totalOutliers > 0) {
+                // Update the cleaning results display
+                document.getElementById('cleaning-results').innerHTML =
+                    `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`;
+                // Show download button
                 document.getElementById('download-cleaned-data').style.display = 'inline-block';
+            });
+
+            // Add event listener for the "Detect Outliers" button
+            document.getElementById('detect-outliers').addEventListener('click', function () {
+                // Check if data has been loaded
+                if (!window.originalData || window.originalData.length === 0) {
+                    alert('Please upload a file first.');
+                    return;
+                }
+
+                // Execute outlier detection
+                detectOutliersSimple();
+            });
+            // Simplified outlier detection function
+            function detectOutliersSimple() {
+                // Get the original data
+                const data = window.originalData;
+
+                // Create a copy of the data for cleaning
+                const cleanedData = JSON.parse(JSON.stringify(data));
+
+                // Assume the first row is the header
+                const headers = data[0];
+
+                // Track outlier information
+                let totalOutliers = 0;
+                let columnResults = [];
+
+                // Loop through all columns
+                for (let colIndex = 0; colIndex < headers.length; colIndex++) {
+                    // Collect numeric values for this column
+                    const numericValues = [];
+                    const valuePositions = []; // Record the row index for each value
+
+                    // Start from the second row (skip header)
+                    for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
+                        if (data[rowIndex].length <= colIndex) continue;
+
+                        const value = data[rowIndex][colIndex];
+                        if (value !== "" && !isNaN(Number(value))) {
+                            numericValues.push(Number(value));
+                            valuePositions.push(rowIndex);
+                        }
+                    }
+
+                    // If there's not enough numeric data, skip this column
+                    if (numericValues.length < 2) continue;
+
+                    // Calculate mean and standard deviation
+                    const mean = numericValues.reduce((sum, val) => sum + val, 0) / numericValues.length;
+                    const squaredDiffs = numericValues.map(val => Math.pow(val - mean, 2));
+                    const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / numericValues.length;
+                    const stdDev = Math.sqrt(variance);
+
+                    // Use Z-score method to detect outliers
+                    const outliers = [];
+
+                    for (let i = 0; i < numericValues.length; i++) {
+                        const value = numericValues[i];
+                        const rowIndex = valuePositions[i];
+                        const zScore = (value - mean) / stdDev;
+
+                        // If Z-score exceeds ±3, consider it an outlier
+                        if (Math.abs(zScore) > 3) {
+                            outliers.push({
+                                row: rowIndex,
+                                value: value,
+                                zScore: zScore
+                            });
+
+                            // Replace outliers with null in the cleaned data
+                            cleanedData[rowIndex][colIndex] = null;
+                        }
+                    }
+
+                    // Update statistics
+                    totalOutliers += outliers.length;
+
+                    // Record results for this column
+                    if (outliers.length > 0) {
+                        const columnName = headers[colIndex] || `Column ${colIndex + 1}`;
+                        columnResults.push({
+                            name: columnName,
+                            outlierCount: outliers.length,
+                            mean: mean,
+                            stdDev: stdDev
+                        });
+                    }
+                }
+
+                // Save the cleaned data
+                window.cleanedData = cleanedData;
+
+                // Display results
+                displayOutlierResultsSimple(columnResults, totalOutliers);
+
+                // Show download button
+                if (totalOutliers > 0) {
+                    document.getElementById('download-cleaned-data').style.display = 'inline-block';
+                }
             }
-        }
 
-        // Display outlier detection results
-        function displayOutlierResultsSimple(columnResults, totalOutliers) {
-            const resultsDiv = document.getElementById('cleaning-results');
+            // Display outlier detection results
+            function displayOutlierResultsSimple(columnResults, totalOutliers) {
+                const resultsDiv = document.getElementById('cleaning-results');
 
-            if (totalOutliers > 0) {
-                let resultsHTML = `<p>Detected <strong>${totalOutliers}</strong> outliers across ${columnResults.length} columns using Z-score method (threshold: ±3).</p>`;
+                if (totalOutliers > 0) {
+                    let resultsHTML = `<p>Detected <strong>${totalOutliers}</strong> outliers across ${columnResults.length} columns using Z-score method (threshold: ±3).</p>`;
 
-                resultsHTML += '<ul>';
-                columnResults.forEach(col => {
-                    resultsHTML += `<li><strong>${col.name}</strong>: ${col.outlierCount} outliers found (mean: ${col.mean.toFixed(2)}, std dev: ${col.stdDev.toFixed(2)})</li>`;
-                });
-                resultsHTML += '</ul>';
+                    resultsHTML += '<ul>';
+                    columnResults.forEach(col => {
+                        resultsHTML += `<li><strong>${col.name}</strong>: ${col.outlierCount} outliers found (mean: ${col.mean.toFixed(2)}, std dev: ${col.stdDev.toFixed(2)})</li>`;
+                    });
+                    resultsHTML += '</ul>';
 
-                resultsHTML += '<p>Outliers have been replaced with empty values in the cleaned data.</p>';
+                    resultsHTML += '<p>Outliers have been replaced with empty values in the cleaned data.</p>';
 
-                resultsDiv.innerHTML = resultsHTML;
-            } else {
-                resultsDiv.innerHTML = '<p>No outliers were found using Z-score method (threshold: ±3).</p>';
-            }
-        }
-
-        // Add event listener for the "Download Cleaned Data" button
-        document.getElementById('download-cleaned-data').addEventListener('click', function () {
-            // Check if cleaned data exists
-            if (!window.cleanedData || window.cleanedData.length === 0) {
-                alert('No cleaned data available. Please clean data first.');
-                return;
+                    resultsDiv.innerHTML = resultsHTML;
+                } else {
+                    resultsDiv.innerHTML = '<p>No outliers were found using Z-score method (threshold: ±3).</p>';
+                }
             }
 
-            // Convert JSON data back to worksheet
-            const ws = XLSX.utils.aoa_to_sheet(window.cleanedData);
+            // Add event listener for the "Download Cleaned Data" button
+            document.getElementById('download-cleaned-data').addEventListener('click', function () {
+                // Check if cleaned data exists
+                if (!window.cleanedData || window.cleanedData.length === 0) {
+                    alert('No cleaned data available. Please clean data first.');
+                    return;
+                }
 
-            // Create a new workbook and add the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Cleaned Data');
+                // Convert JSON data back to worksheet
+                const ws = XLSX.utils.aoa_to_sheet(window.cleanedData);
 
-            // Generate the Excel file and download it
-            XLSX.writeFile(wb, 'cleaned_data.xlsx');
-        });
-    </script>
+                // Create a new workbook and add the worksheet
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Cleaned Data');
+
+                // Generate the Excel file and download it
+                XLSX.writeFile(wb, 'cleaned_data.xlsx');
+            });
+        </script>
 
 </body>
 
