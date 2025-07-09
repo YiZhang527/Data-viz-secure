@@ -13,21 +13,21 @@ const DataCleaner = {
     
     removeEmptyRows: function() {
         console.log("Removing empty rows...");
-        // Check if original data exists
-        if (!DataStore.originalData || DataStore.originalData.length === 0) {
+        // Check if data exists
+        if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('Please upload a file first.');
             return;
         }
         
-        // Get the original data
-        const originalData = DataStore.originalData;
+        // Get the current data (previously processed data or original)
+        const data = DataStore.currentData;
         
         // Create an array to store the cleaned data
         const cleanedData = [];
         
         // Loop through all rows
-        for (let i = 0; i < originalData.length; i++) {
-            const row = originalData[i];
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
             let rowHasData = false;
             
             // Check if the row has any non-empty cells
@@ -44,15 +44,22 @@ const DataCleaner = {
             }
         }
         
-        // Save the cleaned data
-        DataStore.cleanedData = cleanedData;
+        // Save the cleaned data as the new current data
+        DataStore.currentData = cleanedData;
+        
+        // Update operations list
+        if (!DataStore.operations.includes("Remove Empty Rows")) {
+            DataStore.operations.push("Remove Empty Rows");
+        }
         
         // Calculate the number of removed rows
-        const removedRowsCount = originalData.length - cleanedData.length;
+        const removedRowsCount = data.length - cleanedData.length;
         
         // Display results
         UIController.displayCleaningResults({
-            message: `Removed ${removedRowsCount} empty rows. Original data had ${originalData.length} rows, cleaned data has ${cleanedData.length} rows.`
+            message: `Removed ${removedRowsCount} empty row${removedRowsCount !== 1 ? 's' : ''}. 
+                     Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)
+                     Applied operations: ${DataStore.operations.join(", ")}`
         });
         
         // Show download button
@@ -62,13 +69,13 @@ const DataCleaner = {
     detectOutliers: function() {
         console.log("Detecting outliers...");
         // Check if data has been loaded
-        if (!DataStore.originalData || DataStore.originalData.length === 0) {
+        if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('Please upload a file first.');
             return;
         }
         
-        // Get the original data
-        const data = DataStore.originalData;
+        // Get the current data (previously processed data or original)
+        const data = DataStore.currentData;
         
         // Create a copy of the data for cleaning
         const cleanedData = JSON.parse(JSON.stringify(data));
@@ -142,11 +149,21 @@ const DataCleaner = {
             }
         }
         
-        // Save the cleaned data
-        DataStore.cleanedData = cleanedData;
+        // Save the cleaned data as the new current data
+        DataStore.currentData = cleanedData;
         
-        // Display results
+        // Update operations list
+        if (!DataStore.operations.includes("Detect Outliers")) {
+            DataStore.operations.push("Detect Outliers");
+        }
+        
+        // Display results with current data information
         UIController.displayOutlierResults(columnResults, totalOutliers);
+        
+        // Add information about current data state
+        document.getElementById('cleaning-results').innerHTML += 
+            `<p>Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>
+             Applied operations: ${DataStore.operations.join(", ")}</p>`;
         
         // Show download button
         if (totalOutliers > 0) {

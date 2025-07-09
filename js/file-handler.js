@@ -48,6 +48,12 @@ const FileHandler = {
         // Store the original data
         DataStore.originalData = jsonData;
         
+        // Initialize current data as a copy of original data
+        DataStore.currentData = JSON.parse(JSON.stringify(jsonData));
+        
+        // Reset operations history
+        DataStore.operations = [];
+        
         // Show data cleaning options
         document.getElementById('data-cleaning').style.display = 'block';
     }

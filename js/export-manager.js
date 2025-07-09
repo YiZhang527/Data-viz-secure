@@ -12,14 +12,14 @@ const ExportManager = {
     
     downloadCleanedData: function() {
         console.log("Downloading cleaned data...");
-        // Check if cleaned data exists
-        if (!DataStore.cleanedData || DataStore.cleanedData.length === 0) {
+        // Check if current data exists
+        if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('No cleaned data available. Please clean data first.');
             return;
         }
         
         // Convert JSON data back to worksheet
-        const ws = XLSX.utils.aoa_to_sheet(DataStore.cleanedData);
+        const ws = XLSX.utils.aoa_to_sheet(DataStore.currentData);
         
         // Create a new workbook and add the worksheet
         const wb = XLSX.utils.book_new();
