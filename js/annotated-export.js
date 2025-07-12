@@ -61,7 +61,7 @@ const AnnotatedExport = {
         const dataStartRow = legend.length;
         
         // Calculate statistics for each column (for outlier detection)
-        const columnStats = AnnotatedExport._calculateColumnStatistics(data);
+        const columnStats = this._calculateColumnStatistics(data);
         
         // Issue counters
         let counts = { emptyRows: 0, missingValues: 0, outliers: 0 };
@@ -72,9 +72,9 @@ const AnnotatedExport = {
             const adjustedRowIndex = rowIndex + dataStartRow; // Adjusted Excel row index
             
             // Check if this is an empty row
-            if (AnnotatedExport._isEmptyRow(row)) {
+            if (this._isEmptyRow(row)) {
                 counts.emptyRows++;
-                AnnotatedExport._markEmptyRow(ws, adjustedRowIndex, numCols, styles.empty);
+                this._markEmptyRow(ws, adjustedRowIndex, numCols, styles.empty);
             } else {
                 // Check each cell for issues
                 for (let colIndex = 0; colIndex < numCols; colIndex++) {
@@ -84,12 +84,12 @@ const AnnotatedExport = {
                     const value = row[colIndex];
                     
                     // Check for missing values
-                    if (AnnotatedExport._isMissingValue(value)) {
+                    if (this._isMissingValue(value)) {
                         counts.missingValues++;
-                        AnnotatedExport._markCell(ws, cellRef, value, styles.missing, "Missing Value");
+                        this._markCell(ws, cellRef, value, styles.missing, "Missing Value");
                     }
                     // Check for outliers in numeric columns
-                    else if (AnnotatedExport._isNumeric(value) && columnStats[colIndex]) {
+                    else if (this._isNumeric(value) && columnStats[colIndex]) {
                         const numValue = Number(value);
                         const { mean, stdDev } = columnStats[colIndex];
                         
@@ -100,7 +100,7 @@ const AnnotatedExport = {
                             if (zScore > 3) {
                                 counts.outliers++;
                                 const comment = `Outlier\nZ-score: ${zScore.toFixed(2)}\nMean: ${mean.toFixed(2)}\nStd Dev: ${stdDev.toFixed(2)}`;
-                                AnnotatedExport._markCell(ws, cellRef, value, styles.outlier, comment);
+                                this._markCell(ws, cellRef, value, styles.outlier, comment);
                             }
                         }
                     }
@@ -141,7 +141,7 @@ const AnnotatedExport = {
                 if (data[rowIndex].length <= colIndex) continue;
                 
                 const value = data[rowIndex][colIndex];
-                if (AnnotatedExport._isNumeric(value)) {
+                if (this._isNumeric(value)) {
                     numericValues.push(Number(value));
                 }
             }
@@ -165,7 +165,7 @@ const AnnotatedExport = {
      * @private
      */
     _isEmptyRow: function(row) {
-        return row.every(cell => AnnotatedExport._isMissingValue(cell));
+        return row.every(cell => this._isMissingValue(cell));
     },
 
     /**
