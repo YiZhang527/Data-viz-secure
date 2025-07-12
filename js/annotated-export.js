@@ -9,8 +9,10 @@ const AnnotatedExport = {
      */
     initialize: function() {
         console.log("Initializing AnnotatedExport...");
-        // Set up event listeners
-        document.getElementById('download-annotated-data').addEventListener('click', this.downloadAnnotatedData);
+        // Set up event listeners with arrow function to preserve 'this' context
+        document.getElementById('download-annotated-data').addEventListener('click', () => {
+            this.downloadAnnotatedData();
+        });
     },
 
     /**
@@ -118,10 +120,14 @@ const AnnotatedExport = {
         // Add worksheet to workbook
         XLSX.utils.book_append_sheet(wb, ws, 'Annotated Data');
         
-        // Generate and download the Excel file
-        XLSX.writeFile(wb, 'data_issues_report.xlsx');
-        
-        console.log(`Annotated data report generated with ${counts.emptyRows} empty rows, ${counts.missingValues} missing values, ${counts.outliers} outliers`);
+        try {
+            // Generate and download the Excel file
+            XLSX.writeFile(wb, 'data_issues_report.xlsx');
+            console.log(`Annotated data report generated with ${counts.emptyRows} empty rows, ${counts.missingValues} missing values, ${counts.outliers} outliers`);
+        } catch (error) {
+            console.error("Error generating Excel file:", error);
+            alert("Error creating annotated data report: " + error.message);
+        }
     },
 
     /**
