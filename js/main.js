@@ -24,6 +24,7 @@ function initializeApp() {
     FileHandler.initialize();
     DataCleaner.initialize();
     ExportManager.initialize();
+    AnnotatedExport.initialize();
     UIController.initialize();
     
     // Hide data cleaning options initially
