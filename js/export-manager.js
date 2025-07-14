@@ -26,7 +26,11 @@ const ExportManager = {
         XLSX.utils.book_append_sheet(wb, ws, 'Cleaned Data');
         
         // Generate the Excel file and download it
-        XLSX.writeFile(wb, 'cleaned_data.xlsx');
+        // Just add these two options to preserve date formatting
+        XLSX.writeFile(wb, 'cleaned_data.xlsx', {
+            cellDates: true,
+            dateNF: 'yyyy-mm-dd'
+        });
     }
 };
 

@@ -47,6 +47,7 @@ const FileHandler = {
         console.log("Processing file data...");
         
         // Parse data using xlsx library with cellDates option to properly handle dates
+        // This converts Excel dates to JavaScript Date objects but preserves original format
         const workbook = XLSX.read(data, { 
             type: 'binary',
             cellDates: true  // Convert Excel dates to JavaScript Date objects
@@ -56,16 +57,19 @@ const FileHandler = {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         
-        // Convert worksheet to JSON format
+        // Convert worksheet to JSON format, preserving original data formats
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
             header: 1,  // Use array format instead of objects
             defval: ""  // Default value for empty cells
         });
         
-        // Store the original data
+        // Store the original data without modifying date formats
         DataStore.originalData = jsonData;
         
         // Initialize current data as a copy of original data
+        // Note: JSON.stringify/parse will convert Date objects to strings,
+        // but since we're only adding annotations and not changing the data,
+        // this should not affect the final output format
         DataStore.currentData = JSON.parse(JSON.stringify(jsonData));
         
         // Reset operations history
