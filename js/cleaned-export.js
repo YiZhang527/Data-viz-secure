@@ -1,5 +1,5 @@
 /**
- * export-manager.js
+ * cleaned-export.js
  * Handles data export functionality
  */
 
