@@ -1,0 +1,189 @@
+/* validator-integration.css - Styling for the integrated validator UI */
+
+/* Background gradient styling (from the DataValidator design) */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    padding: 20px;
+}
+
+/* Container with max width */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header styling */
+.header {
+    text-align: center;
+    padding: 30px 0;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Upgrade the upload box */
+.upload-box {
+    border: 3px dashed #667eea;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+    border-color: #764ba2;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+/* Split content layout */
+.split-content {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.left-panel {
+    flex: 0 0 45%;
+}
+
+.right-panel {
+    flex: 0 0 55%;
+}
+
+/* Style enhancements for existing elements */
+#file-info-display, 
+#data-cleaning,
+.validation-results {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+}
+
+/* Override button styles */
+.clean-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.clean-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #5a6fe0 0%, #6a3f97 100%);
+}
+
+/* Privacy note enhancement */
+.privacy-note {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    color: #666;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #27ae60;
+    margin-top: 20px;
+}
+
+/* Result cards for validation */
+.result-card {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.result-card h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.result-card.warning {
+    border-left-color: #f39c12;
+}
+
+.result-card.error {
+    border-left-color: #e74c3c;
+}
+
+.result-card.success {
+    border-left-color: #27ae60;
+}
+
+/* Quality score styling */
+.quality-score {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+    margin-right: 15px;
+}
+
+/* Placeholder message for empty validation results */
+.placeholder-message {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* Make sure the validation results section has a minimum height */
+.validation-results {
+    min-height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .split-content {
+        flex-direction: column;
+    }
+    
+    .left-panel, .right-panel {
+        flex: 0 0 100%;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+}
