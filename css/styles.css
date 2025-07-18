@@ -1,7 +1,7 @@
 /* Main body styling */
 body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
+    max-width: none;
     margin: 0 auto;
     padding: 20px;
 }
