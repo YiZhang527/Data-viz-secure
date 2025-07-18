@@ -1,23 +1,26 @@
 /* validator-integration.css - Styling for the integrated validator UI */
 
-/* Background gradient styling (from the DataValidator design) */
+/* Background gradient styling (matches DataValidator design) */
 body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
-    padding: 20px;
+    padding: 10px; /* Reduced padding to maximize screen space */
+    width: 100%;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-/* Container with max width */
+/* Almost full-width container to maximize screen usage */
 .container {
-    max-width: 1200px;
+    max-width: 95%; /* Use percentage instead of fixed pixels */
+    width: 95%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
-/* Header styling */
+/* Header styling with reduced padding */
 .header {
     text-align: center;
-    padding: 30px 0;
+    padding: 40px 0; /* Reduced from 60px */
     color: white;
     margin-bottom: 20px;
 }
@@ -36,11 +39,11 @@ body {
     margin: 0 auto;
 }
 
-/* Upgrade the upload box */
+/* Upgraded upload box with reduced padding */
 .upload-box {
     border: 3px dashed #667eea;
     border-radius: 16px;
-    padding: 40px;
+    padding: 40px 30px; /* Reduced padding */
     text-align: center;
     margin-top: 20px;
     background: white;
@@ -54,31 +57,40 @@ body {
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
 }
 
-/* Split content layout */
+/* Split content layout with validation results on the left */
 .split-content {
     display: flex;
-    gap: 30px;
-    margin-top: 30px;
+    gap: 30px; /* Space between panels */
+    margin-top: 20px;
 }
 
+/* Validation results panel (left) - larger to show more information */
 .left-panel {
-    flex: 0 0 45%;
+    flex: 0 0 62%; /* Validation results take more space */
 }
 
+/* File info and cleaning options panel (right) - smaller */
 .right-panel {
-    flex: 0 0 55%;
+    flex: 0 0 38%; /* File info and cleaning options take less space */
 }
 
-/* Style enhancements for existing elements */
+/* Style enhancements for panel content areas */
 #file-info-display, 
 #data-cleaning,
 .validation-results {
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     border-left: 4px solid #667eea;
+}
+
+/* Grid layout for validation result cards to better utilize wide screens */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
 }
 
 /* Override button styles */
@@ -113,10 +125,16 @@ body {
     margin-top: 20px;
 }
 
-/* Result cards for validation */
+/* Ensure validation results area is always visible */
+.validation-results {
+    display: block; /* Always show this area, even if empty */
+    min-height: 200px;
+}
+
+/* Result cards styling */
 .result-card {
     background: #f8f9ff;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     margin-bottom: 15px;
     border-left: 4px solid #667eea;
@@ -134,6 +152,7 @@ body {
     font-size: 1.1rem;
 }
 
+/* Different colors for different result types */
 .result-card.warning {
     border-left-color: #f39c12;
 }
@@ -146,7 +165,7 @@ body {
     border-left-color: #27ae60;
 }
 
-/* Quality score styling */
+/* Enhanced quality score styling */
 .quality-score {
     display: flex;
     align-items: center;
@@ -154,7 +173,7 @@ body {
 }
 
 .score-value {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: #667eea;
     margin-right: 15px;
@@ -168,13 +187,22 @@ body {
     font-style: italic;
 }
 
-/* Make sure the validation results section has a minimum height */
-.validation-results {
-    min-height: 200px;
+/* Styles for extra wide screens */
+@media (min-width: 1800px) {
+    .results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* More columns on very wide screens */
+    }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 98%; /* Almost full width on small screens */
+        width: 98%;
+        padding: 0 10px;
+    }
+    
+    /* Stack panels vertically on smaller screens */
     .split-content {
         flex-direction: column;
     }
@@ -183,7 +211,14 @@ body {
         flex: 0 0 100%;
     }
     
-    .header h1 {
-        font-size: 2rem;
+    /* On mobile, show file info first, then validation results */
+    .split-content {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    
+    /* Single column for result cards on small screens */
+    .results-grid {
+        grid-template-columns: 1fr;
     }
 }
