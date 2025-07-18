@@ -1,53 +1,80 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Secure Data Visualization Platform</title>
+    <title>Secure Data Validation & Visualization Platform</title>
     <meta charset="utf-8">
-    <!-- Reference to external CSS file -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Reference to external CSS files -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/validator-integration.css">
+    
     <!-- External libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 
 <body>
-    <div class="upload-box">
-        <h2>Upload File</h2>
-        <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
-        <p>Supports CSV and Excel formats</p>
-    </div>
-
-    <!-- File information display area -->
-    <div id="file-info-display"></div>
-
-    <!-- Data cleaning options area -->
-    <div id="data-cleaning">
-        <h3>Data Cleaning Options</h3>
-        <div>
-            <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
-            <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
-            <button id="download-cleaned-data" class="clean-btn">Download Cleaned Data</button>
-            <button id="download-annotated-data" class="clean-btn">Download Annotated Data</button>
+    <div class="container">
+        <div class="header">
+            <h1>Secure Data Validation & Visualization Platform</h1>
+            <p>Intelligent data quality analysis with privacy protection</p>
         </div>
-        <div id="cleaning-results">
+        
+        <!-- File upload area -->
+        <div class="upload-box">
+            <h2>Upload File</h2>
+            <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
+            <p>Supports CSV and Excel formats</p>
+        </div>
+        
+        <!-- Split content area -->
+        <div class="split-content">
+            <!-- Left panel -->
+            <div class="left-panel">
+                <!-- File information display area -->
+                <div id="file-info-display"></div>
+                
+                <!-- Data cleaning options area -->
+                <div id="data-cleaning">
+                    <h3>Data Cleaning Options</h3>
+                    <div>
+                        <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                        <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
+                        <button id="download-cleaned-data" class="clean-btn">Download Cleaned Data</button>
+                        <button id="download-annotated-data" class="clean-btn">Download Annotated Data</button>
+                    </div>
+                    <div id="cleaning-results">
+                        <!-- Cleaning results will appear here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right panel -->
+            <div class="right-panel">
+                <!-- Validation results will appear here -->
+                <div class="validation-results" id="validation-results">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Privacy statement area -->
+        <div class="privacy-note">
+            <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your
+            browser - we never store, transmit, or access your information.
         </div>
     </div>
-
-    <!-- Privacy statement area -->
-    <div class="privacy-note">
-        <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your
-        browser - we never store, transmit, or access your information.
-    </div>
-
+    
     <!-- Include JavaScript modules -->
     <!-- Note: Order matters! First load modules, then main.js -->
     <script src="js/file-handler.js"></script>
     <script src="js/data-cleaner.js"></script>
     <script src="js/cleaned-export.js"></script>
     <script src="js/annotated-export.js"></script>
+    <script src="js/data-validator.js"></script><!-- New validator script -->
     <script src="js/ui-controller.js"></script>
     <script src="js/main.js"></script>
 </body>
-
 </html>
