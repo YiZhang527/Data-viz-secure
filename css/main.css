@@ -1,0 +1,295 @@
+/*----------------------------------------------
+ * MAIN STYLES - Data Validation & Visualization Platform
+ * Combined CSS file for all platform features
+ *----------------------------------------------*/
+
+/*----------------------------------------------
+ * GLOBAL & BASE STYLES
+ *----------------------------------------------*/
+/* Main body styling */
+body {
+    font-family: Arial, sans-serif;
+    max-width: none; /* No width restriction */
+    margin: 0 auto;
+    padding: 10px; /* Reduced padding */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    width: 100%;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Container to maximize screen usage */
+.container {
+    max-width: 95%; 
+    width: 95%;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+/*----------------------------------------------
+ * HEADER & UPLOAD AREA
+ *----------------------------------------------*/
+/* Header styling */
+.header {
+    text-align: center;
+    padding: 40px 0;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* File upload area styling */
+.upload-box {
+    border: 3px dashed #667eea;
+    border-radius: 16px;
+    padding: 15px 20px; /* Compact padding */
+    text-align: center;
+    margin: 15px auto;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    max-width: 500px; /* Limited width for upload box */
+}
+
+.upload-box h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.upload-box:hover {
+    border-color: #764ba2;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+/*----------------------------------------------
+ * LAYOUT & PANELS
+ *----------------------------------------------*/
+/* Split content layout */
+.split-content {
+    display: flex;
+    gap: 30px; /* Space between panels */
+    margin-top: 20px;
+}
+
+/* Validation results panel (left) */
+.left-panel {
+    flex: 0 0 62%; /* Validation results take more space */
+}
+
+/* File info and cleaning options panel (right) */
+.right-panel {
+    flex: 0 0 38%; /* File info and cleaning options take less space */
+}
+
+/*----------------------------------------------
+ * VALIDATION RESULTS STYLES
+ *----------------------------------------------*/
+/* Validation results area */
+.validation-results {
+    display: block; /* Always show this area */
+    min-height: 200px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+}
+
+/* Results grid layout */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+/* Individual result cards */
+.result-card {
+    background: #f8f9ff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.result-card h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+/* Result card types */
+.result-card.warning {
+    border-left-color: #f39c12;
+}
+
+.result-card.error {
+    border-left-color: #e74c3c;
+}
+
+.result-card.success {
+    border-left-color: #27ae60;
+}
+
+/* Quality score styling */
+.quality-score {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.score-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #667eea;
+    margin-right: 15px;
+}
+
+/* Placeholder message */
+.placeholder-message {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/*----------------------------------------------
+ * DATA CLEANING STYLES
+ *----------------------------------------------*/
+/* File info display */
+#file-info-display {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+}
+
+/* Data cleaning section */
+#data-cleaning {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+    /* Keep this to ensure compatibility with existing JS */
+    display: block; /* Changed from 'none' to always show */
+}
+
+/* Button styling */
+.clean-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.clean-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #5a6fe0 0%, #6a3f97 100%);
+}
+
+/* Button container */
+#data-cleaning > div:first-of-type {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Download buttons */
+#download-cleaned-data {
+    display: block; /* Changed from 'none' to always show */
+}
+
+/* Cleaning results area */
+#cleaning-results {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9ff;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+}
+
+/*----------------------------------------------
+ * PRIVACY STATEMENT
+ *----------------------------------------------*/
+/* Privacy note */
+.privacy-note {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    color: #666;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #27ae60;
+    margin-top: 20px;
+}
+
+/*----------------------------------------------
+ * RESPONSIVE DESIGN
+ *----------------------------------------------*/
+/* Extra wide screens */
+@media (min-width: 1800px) {
+    .results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* More columns on very wide screens */
+    }
+}
+
+/* Smaller screens */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 98%;
+        width: 98%;
+        padding: 0 10px;
+    }
+    
+    /* Stack panels vertically */
+    .split-content {
+        flex-direction: column;
+    }
+    
+    .left-panel, .right-panel {
+        flex: 0 0 100%;
+    }
+    
+    /* On mobile, show file info first, then validation results */
+    .split-content {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    
+    /* Single column for result cards */
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
