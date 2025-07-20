@@ -58,11 +58,22 @@ const UIController = {
     
     // Show data cleaning area
     showDataCleaningArea: function() {
-        const dataCleaning = document.getElementById('data-cleaning');
-        if (dataCleaning) {
-            dataCleaning.style.display = 'block';
-        }
-    },
+    const dataCleaning = document.getElementById('data-cleaning');
+    if (dataCleaning) {
+        dataCleaning.innerHTML = `
+            <h3>Data Cleaning Options</h3>
+            <div>
+                <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
+                <button id="download-cleaned-data" class="clean-btn">Download Cleaned Data</button>
+                <button id="download-annotated-data" class="clean-btn">Download Annotated Data</button>
+            </div>
+            <div id="cleaning-results">
+                <!-- Cleaning results will appear here -->
+            </div>
+        `;
+    }
+},
     
     // Display cleaning results
     displayCleaningResults: function(results) {
