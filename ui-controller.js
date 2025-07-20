@@ -27,6 +27,12 @@ const UIController = {
         if (validationResults && validationResults.innerHTML === '') {
             validationResults.innerHTML = '<div class="placeholder-message">Upload a file to see validation results</div>';
         }
+        
+        // Hide the original file info display from the start
+        const fileInfoDisplay = document.getElementById('file-info-display');
+        if (fileInfoDisplay) {
+            fileInfoDisplay.style.display = 'none';
+        }
     },
     
     // Setup event listeners
@@ -53,9 +59,11 @@ const UIController = {
             console.error("Top file info display element not found!");
         }
         
-        // Keep original file info display for compatibility (hidden)
+        // Completely hide the original file info display
         const fileInfoDisplay = document.getElementById('file-info-display');
         if (fileInfoDisplay) {
+            fileInfoDisplay.style.display = 'none';
+            // Still update its content for compatibility with other functions
             fileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
                 <p>File name: ${file.name}</p>
