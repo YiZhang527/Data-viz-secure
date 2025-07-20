@@ -19,10 +19,10 @@ body {
 
 /* Container with fixed width and proper margins */
 .container {
-    max-width: 1200px; /* Fixed maximum width */
-    width: 95%;        /* Use percentage for responsiveness */
+    max-width: 1400px; /* Fixed maximum width */
+    width: 98%;        /* Use percentage for responsiveness */
     margin: 0 auto;    /* Center the container */
-    padding: 20px;     /* Consistent padding */
+    padding: 15px;     /* Consistent padding */
 }
 
 /*----------------------------------------------
