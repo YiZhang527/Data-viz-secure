@@ -34,15 +34,14 @@ const UIController = {
         // You can add any additional UI-related event listeners here
     },
     
-    // Update file information display - ONLY update the top-right section
+    // Update file information display in the top-right section
     updateFileInfo: function(file) {
         console.log("Updating file info...");
         
-        // ONLY update the top-right file info section
-        const topFileInfoDisplay = document.getElementById('new-file-info-display');
-        if (topFileInfoDisplay) {
-            // Clear any placeholder content
-            topFileInfoDisplay.innerHTML = `
+        // Update the file info in the top-right section
+        const fileInfoDisplay = document.getElementById('file-info-display');
+        if (fileInfoDisplay) {
+            fileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
                 <p>File name: ${file.name}</p>
                 <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
@@ -50,7 +49,7 @@ const UIController = {
                 <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
             `;
         } else {
-            console.error("Top file info display element not found!");
+            console.error("File info display element not found!");
         }
         
         // Make sure data cleaning area is visible when a file is loaded
