@@ -38,8 +38,9 @@ const UIController = {
     updateFileInfo: function(file) {
         console.log("Updating file info...");
         
-        // Update new file info display in the top-section
+        // Find the new file info display area
         const newFileInfoDisplay = document.getElementById('new-file-info-display');
+        
         if (newFileInfoDisplay) {
             newFileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
