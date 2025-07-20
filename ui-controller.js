@@ -34,13 +34,12 @@ const UIController = {
         // You can add any additional UI-related event listeners here
     },
     
-    // Update file information display - 修改为使用新的文件信息区域
+    // Update file information display
     updateFileInfo: function(file) {
         console.log("Updating file info...");
         
-        // 找到新的文件信息显示区域
+        // Update new file info display in the top-section
         const newFileInfoDisplay = document.getElementById('new-file-info-display');
-        
         if (newFileInfoDisplay) {
             newFileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
@@ -51,7 +50,8 @@ const UIController = {
             `;
         }
         
-        // 保留对原有文件信息区域的更新，以保持兼容性
+        // Keep updating the original file info display for compatibility
+        // but it will be hidden by CSS
         const fileInfoDisplay = document.getElementById('file-info-display');
         if (fileInfoDisplay) {
             fileInfoDisplay.innerHTML = `
@@ -61,9 +61,6 @@ const UIController = {
                 <p>File type: ${file.type || 'Unknown'}</p>
                 <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
             `;
-            
-            // Make file info visible in case it was hidden
-            fileInfoDisplay.style.display = 'none'; // 隐藏原有区域，但保留更新
         }
         
         // Make sure data cleaning area is visible when a file is loaded
