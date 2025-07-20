@@ -20,7 +20,7 @@ body {
 /* Container with fixed width and proper margins */
 .container {
     max-width: 1200px; /* Fixed maximum width */
-    width: 90%;        /* Use percentage for responsiveness */
+    width: 95%;        /* Use percentage for responsiveness */
     margin: 0 auto;    /* Center the container */
     padding: 20px;     /* Consistent padding */
 }
@@ -61,7 +61,7 @@ body {
 
 /* File upload area styling */
 .upload-box {
-    border: 3px dashed #667eea;
+    border: 1px dashed #667eea;
     border-radius: 12px;
     padding: 25px;
     text-align: center;
