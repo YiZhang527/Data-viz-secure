@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateData(file) {
         console.log('Validating file:', file.name);
         
-        // Clear previous validation results
+        // Clear previous validation results - only modify validation area
         if (validationResultsElement) {
             validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
             
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const columns = Object.keys(data[0]);
         
         // Analyze the data for quality issues
-        const validationResultsArray = []; // 重命名为validationResultsArray，避免冲突
+        const validationResultsArray = [];
         
         // 1. Missing Values Analysis
         const missingValues = analyzeMissingValues(data, columns);
@@ -269,9 +269,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return Math.max(0, Math.round(score));
     }
     
-    // Display validation results
+    // Display validation results - only update validation area
     function displayResults(results, qualityScore) {
         if (!validationResultsElement) return;
+        
+        // Focus only on updating validation results section
+        validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
         
         // Add quality score card at the top
         const scoreCard = document.createElement('div');
