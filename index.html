@@ -19,11 +19,23 @@
             <h1>Data Cleaning & Visualization Platform</h1>
         </div>
         
-        <!-- File upload area -->
-        <div class="upload-box">
-            <h2>Upload File</h2>
-            <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
-            <p>Supports CSV and Excel formats</p>
+        <!-- Top section with upload and file info -->
+        <div class="top-section">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-box">
+                    <h2>Upload File</h2>
+                    <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
+                    <p>Supports CSV and Excel formats</p>
+                </div>
+            </div>
+            
+            <!-- Right side: File information -->
+            <div class="file-info-section" id="new-file-info-display">
+                <div class="file-info-placeholder">
+                    Select a file to view information
+                </div>
+            </div>
         </div>
         
         <!-- Split content area -->
@@ -38,7 +50,7 @@
             
             <!-- Right panel - Cleaning Options -->
             <div class="right-panel">
-                <!-- File information display area -->
+                <!-- Original file info area (hidden but kept for compatibility) -->
                 <div id="file-info-display"></div>
                 
                 <!-- Data cleaning options area -->
