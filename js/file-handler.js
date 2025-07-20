@@ -34,33 +34,47 @@ const FileHandler = {
                 FileHandler.processFileData(e.target.result);
             };
             
-            // Read the file as binary string
-            reader.readAsBinaryString(file);
+            // Read file based on type
+            if (file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
         }
     },
     
     /**
      * Process the data from the uploaded file
-     * @param {string} data - The binary string data from the file
+     * @param {string} data - The file data
      */
     processFileData: function(data) {
         console.log("Processing file data...");
         
-        // Parse data using xlsx library with cellDates option
-        const workbook = XLSX.read(data, { 
-            type: 'binary',
-            cellDates: true  // Convert Excel dates to JavaScript Date objects
-        });
+        let jsonData;
         
-        // Get the first worksheet
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        // Convert worksheet to JSON format
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-            header: 1,  
-            defval: ""  
-        });
+        if (DataStore.currentFile.name.endsWith('.csv')) {
+            // Process CSV file
+            const parsed = Papa.parse(data, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true
+            });
+            jsonData = parsed.data;
+        } else {
+            // Process Excel file
+            const workbook = XLSX.read(data, { 
+                type: 'binary',
+                cellDates: true
+            });
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                header: 1,  
+                defval: ""  
+            });
+        }
         
         // Store the original data
         DataStore.originalData = jsonData;
@@ -73,6 +87,7 @@ const FileHandler = {
         
         // Reset operations history
         DataStore.operations = [];
+    }
 };
 
 // Make FileHandler accessible globally
