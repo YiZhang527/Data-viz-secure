@@ -57,11 +57,15 @@ body {
     border-radius: 16px;
     padding: 15px 20px; /* Compact padding */
     text-align: center;
-    margin: 15px auto;
+    margin: 0 auto; /* Changed from 15px auto to align with top */
     background: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
-    max-width: 500px; /* Limited width for upload box */
+    max-width: 100%; /* Changed from 500px to fill the container */
+    height: 200px; /* Fixed height to match file info section */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .upload-box h2 {
@@ -88,6 +92,30 @@ body {
 /* Upload section (left side) */
 .upload-section {
     flex: 0 0 50%; /* Upload area takes 50% */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px; /* Add padding for spacing */
+}
+
+/* Ensure the upload container fills the space properly */
+.upload-section .upload-box {
+    width: 100%;
+    margin: 0;
+}
+
+/* File info section container */
+.file-info-section {
+    margin: 0 15px; /* Add margin to match upload section padding */
+}
+
+/* File info placeholder */
+.file-info-placeholder {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+    font-size: 1.1rem; /* Match text size with upload box */
 }
 
 /* File info section (right side) */
@@ -101,12 +129,18 @@ body {
     min-height: 200px; /* Ensure height matches upload area */
 }
 
+/* File info section - text alignment */
+.file-info-section {
+    text-align: left; /* Restore original left alignment */
+}
+
 /* File info placeholder */
 .file-info-placeholder {
     text-align: center;
     color: #888;
     font-style: italic;
     padding: 20px;
+    font-size: 1.1rem;
 }
 
 /*----------------------------------------------
