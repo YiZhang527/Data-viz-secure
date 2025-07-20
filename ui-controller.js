@@ -113,20 +113,6 @@ const UIController = {
             }, 2000);
         }
     },
-    
-    // Update the download buttons visibility
-    updateDownloadButtonsVisibility: function(show) {
-        const downloadCleanedBtn = document.getElementById('download-cleaned-data');
-        const downloadAnnotatedBtn = document.getElementById('download-annotated-data');
-        
-        if (downloadCleanedBtn) {
-            downloadCleanedBtn.style.display = show ? 'inline-block' : 'none';
-        }
-        
-        if (downloadAnnotatedBtn) {
-            downloadAnnotatedBtn.style.display = show ? 'inline-block' : 'none';
-        }
-    }
 };
 
 // Make UIController accessible globally
