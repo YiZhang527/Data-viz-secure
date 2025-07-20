@@ -34,25 +34,26 @@ const UIController = {
         // You can add any additional UI-related event listeners here
     },
     
-    // Update file information display
+    // Update file information display - IMPORTANT: Make sure to update the top-right section
     updateFileInfo: function(file) {
         console.log("Updating file info...");
         
-        // Find the new file info display area
-        const newFileInfoDisplay = document.getElementById('new-file-info-display');
-        
-        if (newFileInfoDisplay) {
-            newFileInfoDisplay.innerHTML = `
+        // Update the top-right file info section
+        const topFileInfoDisplay = document.getElementById('new-file-info-display');
+        if (topFileInfoDisplay) {
+            // Clear any placeholder content
+            topFileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
                 <p>File name: ${file.name}</p>
                 <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
                 <p>File type: ${file.type || 'Unknown'}</p>
                 <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
             `;
+        } else {
+            console.error("Top file info display element not found!");
         }
         
-        // Keep updating the original file info display for compatibility
-        // but it will be hidden by CSS
+        // Keep original file info display for compatibility (hidden)
         const fileInfoDisplay = document.getElementById('file-info-display');
         if (fileInfoDisplay) {
             fileInfoDisplay.innerHTML = `
