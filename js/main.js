@@ -27,9 +27,6 @@ function initializeApp() {
     AnnotatedExport.initialize();
     UIController.initialize();
     
-    // Hide data cleaning options initially
-    document.getElementById('data-cleaning').style.display = 'none';
-    
     console.log("Application initialized successfully");
 }
 
