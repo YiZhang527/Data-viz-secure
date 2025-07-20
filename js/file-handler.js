@@ -73,10 +73,6 @@ const FileHandler = {
         
         // Reset operations history
         DataStore.operations = [];
-        
-        // Show data cleaning options with buttons
-UIController.showDataCleaningArea();
-    }
 };
 
 // Make FileHandler accessible globally
