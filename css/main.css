@@ -76,6 +76,40 @@ body {
 }
 
 /*----------------------------------------------
+ * NEW TOP SECTION LAYOUT
+ *----------------------------------------------*/
+/* Top section with upload and file info */
+.top-section {
+    display: flex;
+    gap: 30px; /* Space between panels */
+    margin-bottom: 30px;
+}
+
+/* Upload section (left side) */
+.upload-section {
+    flex: 0 0 50%; /* Upload area takes 50% */
+}
+
+/* File info section (right side) */
+.file-info-section {
+    flex: 0 0 50%; /* File info takes 50% */
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+    min-height: 200px; /* Ensure height matches upload area */
+}
+
+/* File info placeholder */
+.file-info-placeholder {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+}
+
+/*----------------------------------------------
  * LAYOUT & PANELS
  *----------------------------------------------*/
 /* Split content layout */
@@ -87,12 +121,12 @@ body {
 
 /* Validation results panel (left) */
 .left-panel {
-    flex: 0 0 62%; /* Validation results take more space */
+    flex: 0 0 50%; /* Changed to 50% for equal distribution */
 }
 
-/* File info and cleaning options panel (right) */
+/* Cleaning options panel (right) */
 .right-panel {
-    flex: 0 0 38%; /* File info and cleaning options take less space */
+    flex: 0 0 50%; /* Changed to 50% for equal distribution */
 }
 
 /*----------------------------------------------
@@ -176,14 +210,9 @@ body {
 /*----------------------------------------------
  * DATA CLEANING STYLES
  *----------------------------------------------*/
-/* File info display */
+/* File info display - hide original but keep for compatibility */
 #file-info-display {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    border-left: 4px solid #667eea;
+    display: none; /* Hide the original file info display */
 }
 
 /* Data cleaning section */
@@ -274,18 +303,20 @@ body {
     }
     
     /* Stack panels vertically */
+    .top-section {
+        flex-direction: column;
+    }
+    
+    .upload-section, .file-info-section {
+        flex: 0 0 100%;
+    }
+    
     .split-content {
         flex-direction: column;
     }
     
     .left-panel, .right-panel {
         flex: 0 0 100%;
-    }
-    
-    /* On mobile, show file info first, then validation results */
-    .split-content {
-        display: flex;
-        flex-direction: column-reverse;
     }
     
     /* Single column for result cards */
