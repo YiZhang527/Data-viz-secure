@@ -27,12 +27,6 @@ const UIController = {
         if (validationResults && validationResults.innerHTML === '') {
             validationResults.innerHTML = '<div class="placeholder-message">Upload a file to see validation results</div>';
         }
-        
-        // Hide the original file info display from the start
-        const fileInfoDisplay = document.getElementById('file-info-display');
-        if (fileInfoDisplay) {
-            fileInfoDisplay.style.display = 'none';
-        }
     },
     
     // Setup event listeners
@@ -40,11 +34,11 @@ const UIController = {
         // You can add any additional UI-related event listeners here
     },
     
-    // Update file information display - IMPORTANT: Make sure to update the top-right section
+    // Update file information display - ONLY update the top-right section
     updateFileInfo: function(file) {
         console.log("Updating file info...");
         
-        // Update the top-right file info section
+        // ONLY update the top-right file info section
         const topFileInfoDisplay = document.getElementById('new-file-info-display');
         if (topFileInfoDisplay) {
             // Clear any placeholder content
@@ -57,20 +51,6 @@ const UIController = {
             `;
         } else {
             console.error("Top file info display element not found!");
-        }
-        
-        // Completely hide the original file info display
-        const fileInfoDisplay = document.getElementById('file-info-display');
-        if (fileInfoDisplay) {
-            fileInfoDisplay.style.display = 'none';
-            // Still update its content for compatibility with other functions
-            fileInfoDisplay.innerHTML = `
-                <h3>Selected File:</h3>
-                <p>File name: ${file.name}</p>
-                <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
-                <p>File type: ${file.type || 'Unknown'}</p>
-                <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
-            `;
         }
         
         // Make sure data cleaning area is visible when a file is loaded
