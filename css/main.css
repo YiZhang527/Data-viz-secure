@@ -233,9 +233,6 @@ body {
  * DATA CLEANING STYLES
  *----------------------------------------------*/
 /* File info display - hide original but keep for compatibility */
-#file-info-display {
-    display: none;
-}
 
 /* Data cleaning section */
 #data-cleaning {
