@@ -58,21 +58,21 @@ const UIController = {
    
    // Show data cleaning area and add cleaning buttons
    showDataCleaningArea: function() {
-       const dataCleaning = document.getElementById('data-cleaning');
-       if (dataCleaning) {
-           // Replace placeholder with actual cleaning options
-           dataCleaning.innerHTML = `
-               <div>
-                   <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
-                   <button id="detect-outliers" class="clean-btn">Detect Outliers</button>
-                   <button id="download-cleaned-data" class="clean-btn" style="display: none;">Download Cleaned Data</button>
-                   <button id="download-annotated-data" class="clean-btn" style="display: none;">Download Data Issues Report</button>
-               </div>
-               <div id="cleaning-results"></div>
-           `;
-           dataCleaning.style.display = 'block';
-       }
-   },
+    const dataCleaning = document.getElementById('data-cleaning');
+    if (dataCleaning) {
+        // Replace placeholder with actual cleaning options
+        dataCleaning.innerHTML = `
+            <div>
+                <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                <button id="detect-outliers" class="clean-btn">Detect Outliers</button>
+                <button id="download-cleaned-data" class="clean-btn" style="display: none;">Download Cleaned Data</button>
+                <button id="download-annotated-data" class="clean-btn" style="display: none;">Download Data Issues Report</button>
+            </div>
+            <div id="cleaning-results"></div>
+        `;
+        dataCleaning.style.display = 'block';
+    }
+}
    
    // Display cleaning results
    displayCleaningResults: function(results) {
