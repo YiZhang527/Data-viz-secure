@@ -30,7 +30,7 @@
                 </div>
             </div>
             
-            <!-- Right side: File information - CHANGED ID to file-info-display -->
+            <!-- Right side: File information -->
             <div class="file-info-section" id="file-info-display">
                 <div class="file-info-placeholder">
                     Upload a file to view information
@@ -50,12 +50,24 @@
             
             <!-- Right panel - Cleaning Options -->
             <div class="right-panel">
-                <!-- Data cleaning options area - REMOVED file-info-display element -->
+                <!-- Data cleaning options area -->
                 <div id="data-cleaning">
-    <div class="file-info-placeholder">
-        Upload a file to access cleaning options
-    </div>
-</div>
+                    <div class="file-info-placeholder">
+                        Upload a file to access cleaning options
+                    </div>
+                    <!-- Added cleaning buttons -->
+                    <div class="cleaning-buttons" style="margin-top: 20px;">
+                        <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                        <button id="detect-outliers" class="clean-btn">Detect Outliers</button>
+                    </div>
+                    <!-- Area to display cleaning results -->
+                    <div id="cleaning-results" style="margin-top: 20px;"></div>
+                    <!-- Download buttons -->
+                    <div style="margin-top: 20px;">
+                        <button id="download-cleaned-data" class="clean-btn" style="display:none;">Download Cleaned Data</button>
+                        <button id="download-annotated-data" class="clean-btn" style="display:none;">Download Annotated Data</button>
+                    </div>
+                </div>
             </div>
         </div>
         
