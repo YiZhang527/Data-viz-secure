@@ -91,6 +91,9 @@ const FileHandler = {
         // Display data cleaning options
         UIController.showDataCleaningArea();
         
+        // Initialize event listeners for cleaning buttons
+        DataCleaner.initialize();
+        
         // Run data validation if available
         if (typeof DataValidator !== 'undefined' && DataValidator.validateData) {
             DataValidator.validateData(jsonData);
