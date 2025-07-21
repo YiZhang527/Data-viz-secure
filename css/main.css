@@ -93,13 +93,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    padding-top: 30px;
+    padding-top: 5px;
 }
 
 /* File info content */
 .file-info-section p {
-    margin: 8px 0;
-    line-height: 1.5;
+    margin: 4px 0;
+    line-height: 1.2;
 }
 
 /* File upload area styling */
