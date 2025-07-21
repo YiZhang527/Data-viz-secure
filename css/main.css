@@ -87,18 +87,19 @@ body {
 
 /* File info section specific styles */
 .file-info-section {
-    overflow: visible; /* Allow content to be fully visible without scrollbar */
-    word-break: break-word; /* Break long words */
-    height: auto; /* Let height adjust to content */
+    overflow: visible;
+    word-break: break-word;
+    height: 220px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertically center content */
+    justify-content: flex-start;
+    padding-top: 30px;
 }
 
 /* File info content */
 .file-info-section p {
-    margin: 8px 0; /* Reduce margins between paragraphs */
-    line-height: 1.5; /* Better line spacing */
+    margin: 8px 0;
+    line-height: 1.5;
 }
 
 /* File upload area styling */
