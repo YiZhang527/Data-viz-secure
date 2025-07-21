@@ -87,9 +87,18 @@ body {
 
 /* File info section specific styles */
 .file-info-section {
-    overflow-y: auto; /* Add scrollbar if content overflows */
+    overflow: visible; /* Allow content to be fully visible without scrollbar */
     word-break: break-word; /* Break long words */
-    height: 220px; /* Fixed height for all top boxes */
+    height: auto; /* Let height adjust to content */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content */
+}
+
+/* File info content */
+.file-info-section p {
+    margin: 8px 0; /* Reduce margins between paragraphs */
+    line-height: 1.5; /* Better line spacing */
 }
 
 /* File upload area styling */
