@@ -87,8 +87,15 @@ const FileHandler = {
         
         // Reset operations history
         DataStore.operations = [];
+        
+        // Display data cleaning options
+        UIController.showDataCleaningArea();
+        
+        // Run data validation if available
+        if (typeof DataValidator !== 'undefined' && DataValidator.validateData) {
+            DataValidator.validateData(jsonData);
+        }
     }
 };
-
 // Make FileHandler accessible globally
 window.FileHandler = FileHandler;
