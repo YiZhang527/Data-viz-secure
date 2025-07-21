@@ -74,6 +74,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%; /* Fill available space */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Style the file input */
@@ -102,22 +103,29 @@ body {
 /*----------------------------------------------
  * LAYOUT SECTIONS
  *----------------------------------------------*/
+/* Common panel structure for consistent sizing */
+.upload-section, .file-info-section, .left-panel, .right-panel {
+    flex: 1;
+    min-width: 0; /* Prevent content overflow */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
 /* Top section with upload and file info */
 .top-section {
     display: flex;
     gap: 30px;
     margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Upload section (left side) */
 .upload-section {
-    flex: 1; /* Equal flex grow */
     display: flex;
 }
 
 /* File info section (right side) */
 .file-info-section {
-    flex: 1; /* Equal flex grow */
     background: white;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
@@ -126,6 +134,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* File info placeholder */
@@ -142,16 +151,8 @@ body {
     display: flex;
     gap: 30px;
     margin-top: 30px;
-}
-
-/* Left panel - Validation Results */
-.left-panel {
-    flex: 1; /* Equal flex grow */
-}
-
-/* Right panel - Cleaning Options */
-.right-panel {
-    flex: 1; /* Equal flex grow */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /*----------------------------------------------
@@ -164,6 +165,8 @@ body {
     padding: 25px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     min-height: 300px;
+    width: 100%;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Results grid layout */
@@ -232,8 +235,6 @@ body {
 /*----------------------------------------------
  * DATA CLEANING STYLES
  *----------------------------------------------*/
-/* File info display - hide original but keep for compatibility */
-
 /* Data cleaning section */
 #data-cleaning {
     background: white;
@@ -241,6 +242,8 @@ body {
     padding: 25px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     min-height: 300px;
+    width: 100%;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Button styling */
@@ -265,80 +268,4 @@ body {
 
 /* Button container */
 #data-cleaning > div:first-of-type {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-/* Download buttons */
-#download-cleaned-data, #download-annotated-data {
-    display: block;
-}
-
-/* Cleaning results area */
-#cleaning-results {
-    margin-top: 15px;
-    padding: 15px;
-    background-color: #f8f9ff;
-    border-left: 4px solid #667eea;
-    border-radius: 8px;
-}
-
-/*----------------------------------------------
- * PRIVACY STATEMENT
- *----------------------------------------------*/
-/* Privacy note */
-.privacy-note {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    color: #666;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    border-left: 4px solid #27ae60;
-    margin-top: 30px;
-}
-
-/*----------------------------------------------
- * RESPONSIVE DESIGN
- *----------------------------------------------*/
-/* Extra wide screens */
-@media (min-width: 1800px) {
-    .container {
-        max-width: 1400px; /* Larger container for very wide screens */
-    }
-    
-    .results-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-}
-
-/* Medium screens */
-@media (max-width: 1200px) {
-    .container {
-        width: 95%;
-    }
-}
-
-/* Smaller screens */
-@media (max-width: 768px) {
-    .container {
-        width: 95%;
-        padding: 10px;
-    }
-    
-    /* Stack panels vertically */
-    .top-section, .split-content {
-        flex-direction: column;
-    }
-    
-    .validation-results, #data-cleaning {
-        min-height: auto;
-    }
-    
-    /* Single column for result cards */
-    .results-grid {
-        grid-template-columns: 1fr;
-    }
-}
+    displ
