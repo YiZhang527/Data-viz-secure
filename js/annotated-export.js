@@ -5,15 +5,21 @@
 
 const AnnotatedExport = {
     /**
-     * Initialize the module
-     */
-    initialize: function() {
-        console.log("Initializing AnnotatedExport...");
-        // Set up event listeners with arrow function to preserve 'this' context
-        document.getElementById('download-annotated-data').addEventListener('click', () => {
-            this.downloadAnnotatedData();
-        });
-    },
+ * Initialize the module
+ */
+initialize: function() {
+    console.log("Initializing AnnotatedExport...");
+    // Set up event listeners with delay to ensure DOM elements exist
+    setTimeout(() => {
+        const downloadBtn = document.getElementById('download-annotated-data');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                this.downloadAnnotatedData();
+            });
+            console.log("Annotated data download button event listener attached");
+        }
+    }, 1000);
+},
 
     /**
      * Download annotated data report that highlights data issues
