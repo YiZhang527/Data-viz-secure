@@ -87,19 +87,19 @@ body {
 
 /* File info section specific styles */
 .file-info-section {
-    overflow: visible;
     word-break: break-word;
     height: 220px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    padding-top: 5px;
+    padding-top: 0px;
 }
 
 /* File info content */
 .file-info-section p {
-    margin: 4px 0;
-    line-height: 1.2;
+    margin: 2px 0;
+    line-height: 1;
 }
 
 /* File upload area styling */
