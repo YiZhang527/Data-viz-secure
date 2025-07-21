@@ -4,15 +4,16 @@
  */
 const ExportManager = {
     initialize: function() {
-        console.log("Initializing ExportManager...");
-        // Set up event listeners - using timeout to ensure element exists
-        setTimeout(() => {
-            const downloadBtn = document.getElementById('download-cleaned-data');
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', this.downloadCleanedData);
-            }
-        }, 1000); // Give UI time to render
-    },
+    console.log("Initializing ExportManager...");
+    // Set up event listeners with delay
+    setTimeout(() => {
+        const downloadBtn = document.getElementById('download-cleaned-data');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', this.downloadCleanedData);
+            console.log("Cleaned data download button event listener attached");
+        }
+    }, 1000);
+},
     
     downloadCleanedData: function() {
         console.log("Downloading cleaned data...");
