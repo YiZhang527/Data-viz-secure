@@ -23,6 +23,7 @@ body {
     width: 98%;        /* Use percentage for responsiveness */
     margin: 0 auto;    /* Center the container */
     padding: 15px;     /* Consistent padding */
+    box-sizing: border-box;
 }
 
 /*----------------------------------------------
@@ -50,31 +51,57 @@ body {
     margin: 0 auto;
 }
 
-/* COMMON PANEL STYLING - Apply to all white panels */
-.panel-common {
+/* PANEL LAYOUT - Fixed width for all panels */
+.top-section, .split-content {
+    display: flex;
+    width: 100%;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    /* Remove gap - we'll use explicit margins */
+}
+
+/* Set exact same width for all panels */
+.upload-section, .file-info-section, .left-panel, .right-panel {
+    width: calc(50% - 15px); /* Exactly half width minus half of gap */
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Gap between panels */
+.upload-section, .left-panel {
+    margin-right: 30px; /* Fixed gap */
+}
+
+/* COMMON PANEL STYLING - Consistent white panels */
+.upload-box, .file-info-section, .validation-results, #data-cleaning {
     background: white;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     padding: 25px;
-    margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 220px; /* Increased minimum height to prevent overflow */
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+/* File info section specific styles */
+.file-info-section {
+    overflow-y: auto; /* Add scrollbar if content overflows */
+    word-break: break-word; /* Break long words */
+    height: 220px; /* Fixed height for all top boxes */
 }
 
 /* File upload area styling */
 .upload-box {
     border: 1px dashed #667eea;
-    border-radius: 12px;
-    padding: 25px;
     text-align: center;
-    background: white;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
-    height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Fill available space */
-    box-sizing: border-box; /* Include padding in width calculation */
+    height: 220px; /* Fixed height to match file-info-section */
 }
 
 /* Style the file input */
@@ -100,43 +127,6 @@ body {
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
 }
 
-/*----------------------------------------------
- * LAYOUT SECTIONS
- *----------------------------------------------*/
-/* Common panel structure for consistent sizing */
-.upload-section, .file-info-section, .left-panel, .right-panel {
-    flex: 1;
-    min-width: 0; /* Prevent content overflow */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-/* Top section with upload and file info */
-.top-section {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 30px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Upload section (left side) */
-.upload-section {
-    display: flex;
-}
-
-/* File info section (right side) */
-.file-info-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    padding: 25px;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
 /* File info placeholder */
 .file-info-placeholder {
     text-align: center;
@@ -146,27 +136,13 @@ body {
     font-size: 1.1rem;
 }
 
-/* Split content layout for bottom section */
-.split-content {
-    display: flex;
-    gap: 30px;
-    margin-top: 30px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
 /*----------------------------------------------
  * VALIDATION RESULTS STYLES
  *----------------------------------------------*/
-/* Validation results area */
+/* Validation results area - already covered by common panel styling */
 .validation-results {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    min-height: 300px;
-    width: 100%;
-    box-sizing: border-box; /* Include padding in width calculation */
+    min-height: 300px; /* Taller for results */
+    overflow-y: auto; /* Add scrollbar if content is too long */
 }
 
 /* Results grid layout */
@@ -235,15 +211,10 @@ body {
 /*----------------------------------------------
  * DATA CLEANING STYLES
  *----------------------------------------------*/
-/* Data cleaning section */
+/* Data cleaning section - already covered by common panel styling */
 #data-cleaning {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    min-height: 300px;
-    width: 100%;
-    box-sizing: border-box; /* Include padding in width calculation */
+    min-height: 300px; /* Taller for options */
+    overflow-y: auto; /* Add scrollbar if content is too long */
 }
 
 /* Button styling */
@@ -268,4 +239,88 @@ body {
 
 /* Button container */
 #data-cleaning > div:first-of-type {
-    displ
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Download buttons */
+#download-cleaned-data, #download-annotated-data {
+    display: block;
+}
+
+/* Cleaning results area */
+#cleaning-results {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9ff;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+}
+
+/*----------------------------------------------
+ * PRIVACY STATEMENT
+ *----------------------------------------------*/
+/* Privacy note */
+.privacy-note {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    color: #666;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #27ae60;
+    margin-top: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/*----------------------------------------------
+ * RESPONSIVE DESIGN
+ *----------------------------------------------*/
+/* Extra wide screens */
+@media (min-width: 1800px) {
+    .container {
+        max-width: 1400px; /* Larger container for very wide screens */
+    }
+    
+    .results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Medium screens */
+@media (max-width: 1200px) {
+    .container {
+        width: 95%;
+    }
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+    
+    /* Stack panels vertically */
+    .top-section, .split-content {
+        flex-direction: column;
+    }
+    
+    .upload-section, .file-info-section, .left-panel, .right-panel {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+    
+    .validation-results, #data-cleaning {
+        min-height: auto;
+    }
+    
+    /* Single column for result cards */
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
