@@ -3,43 +3,24 @@
  * Manages UI updates and interactions
  */
 
+// Create UIController object
 const UIController = {
+    // Initialize UI
     initialize: function() {
         console.log("Initializing UIController...");
         
-        // Set up initial UI state
-        this.setupInitialState();
-        
-        // Set up any UI-related event listeners
-        this.setupEventListeners();
-    },
-    
-    // Setup initial UI state
-    setupInitialState: function() {
-        // Make sure data cleaning area is visible
+        // Hide cleaning options initially
         const dataCleaning = document.getElementById('data-cleaning');
         if (dataCleaning) {
             dataCleaning.style.display = 'block';
         }
-        
-        // Initialize validation results placeholder if the element exists
-        const validationResults = document.getElementById('validation-results');
-        if (validationResults && validationResults.innerHTML === '') {
-            validationResults.innerHTML = '<div class="placeholder-message">Upload a file to see validation results</div>';
-        }
     },
     
-    // Setup event listeners
-    setupEventListeners: function() {
-        // You can add any additional UI-related event listeners here
-    },
-    
-    // Update file information display in the top-right section
+    // Update file info display
     updateFileInfo: function(file) {
         console.log("Updating file info...");
-        
-        // Update the file info in the top-right section
         const fileInfoDisplay = document.getElementById('file-info-display');
+        
         if (fileInfoDisplay) {
             fileInfoDisplay.innerHTML = `
                 <h3>Selected File:</h3>
@@ -48,32 +29,59 @@ const UIController = {
                 <p>File type: ${file.type || 'Unknown'}</p>
                 <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
             `;
-        } else {
-            console.error("File info display element not found!");
         }
         
-        // Make sure data cleaning area is visible when a file is loaded
+        // Show cleaning options
         this.showDataCleaningArea();
     },
     
-    // Show data cleaning area
+    // Show data cleaning options
     showDataCleaningArea: function() {
-    const dataCleaning = document.getElementById('data-cleaning');
-    if (dataCleaning) {
-        dataCleaning.innerHTML = `
-            <h3>Data Cleaning Options</h3>
-            <div>
-                <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
-                <button id="detect-outliers" class="clean-btn">Detect Outliers (Z-score)</button>
-                <button id="download-cleaned-data" class="clean-btn">Download Cleaned Data</button>
-                <button id="download-annotated-data" class="clean-btn">Download Annotated Data</button>
-            </div>
-            <div id="cleaning-results">
-                <!-- Cleaning results will appear here -->
-            </div>
-        `;
-    }
-},
+        console.log("Showing data cleaning area");
+        const dataCleaning = document.getElementById('data-cleaning');
+        
+        if (dataCleaning) {
+            dataCleaning.innerHTML = `
+                <h3>Data Cleaning Options</h3>
+                <div>
+                    <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                    <button id="detect-outliers" class="clean-btn">Detect Outliers</button>
+                    <button id="download-cleaned-data" class="clean-btn" style="display: none;">Download Cleaned Data</button>
+                    <button id="download-annotated-data" class="clean-btn" style="display: none;">Download Annotated Data</button>
+                </div>
+                <div id="cleaning-results"></div>
+            `;
+            
+            // Add event listeners
+            if (typeof DataCleaner !== 'undefined') {
+                const removeEmptyRowsBtn = document.getElementById('remove-empty-rows');
+                if (removeEmptyRowsBtn) {
+                    removeEmptyRowsBtn.addEventListener('click', DataCleaner.removeEmptyRows);
+                }
+                
+                const detectOutliersBtn = document.getElementById('detect-outliers');
+                if (detectOutliersBtn) {
+                    detectOutliersBtn.addEventListener('click', DataCleaner.detectOutliers);
+                }
+            }
+            
+            if (typeof ExportManager !== 'undefined') {
+                const downloadCleanedBtn = document.getElementById('download-cleaned-data');
+                if (downloadCleanedBtn) {
+                    downloadCleanedBtn.addEventListener('click', ExportManager.downloadCleanedData);
+                }
+            }
+            
+            if (typeof AnnotatedExport !== 'undefined') {
+                const downloadAnnotatedBtn = document.getElementById('download-annotated-data');
+                if (downloadAnnotatedBtn) {
+                    downloadAnnotatedBtn.addEventListener('click', function() {
+                        AnnotatedExport.downloadAnnotatedData();
+                    });
+                }
+            }
+        }
+    },
     
     // Display cleaning results
     displayCleaningResults: function(results) {
@@ -82,14 +90,6 @@ const UIController = {
         
         if (resultsDiv) {
             resultsDiv.innerHTML = results.message;
-            
-            // Highlight the results with a success style
-            resultsDiv.className = 'cleaning-results-success';
-            
-            // After a delay, remove the highlight
-            setTimeout(() => {
-                resultsDiv.className = '';
-            }, 2000);
         }
     },
     
@@ -114,16 +114,22 @@ const UIController = {
             } else {
                 resultsDiv.innerHTML = '<p>No outliers were found using Z-score method (threshold: ±3).</p>';
             }
-            
-            // Add a visual indicator for the results
-            resultsDiv.className = totalOutliers > 0 ? 'outlier-results-found' : 'outlier-results-none';
-            
-            // After a delay, remove the highlight
-            setTimeout(() => {
-                resultsDiv.className = '';
-            }, 2000);
         }
     },
+    
+    // Update download buttons visibility
+    updateDownloadButtonsVisibility: function(show) {
+        const downloadCleanedBtn = document.getElementById('download-cleaned-data');
+        const downloadAnnotatedBtn = document.getElementById('download-annotated-data');
+        
+        if (downloadCleanedBtn) {
+            downloadCleanedBtn.style.display = show ? 'inline-block' : 'none';
+        }
+        
+        if (downloadAnnotatedBtn) {
+            downloadAnnotatedBtn.style.display = show ? 'inline-block' : 'none';
+        }
+    }
 };
 
 // Make UIController accessible globally
@@ -131,5 +137,6 @@ window.UIController = UIController;
 
 // Initialize the UI controller when the document is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded - Initializing UI");
     UIController.initialize();
 });
