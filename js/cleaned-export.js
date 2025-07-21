@@ -2,12 +2,16 @@
  * cleaned-export.js
  * Handles data export functionality
  */
-
 const ExportManager = {
     initialize: function() {
         console.log("Initializing ExportManager...");
-        // Set up event listeners
-        document.getElementById('download-cleaned-data').addEventListener('click', this.downloadCleanedData);
+        // Set up event listeners - using timeout to ensure element exists
+        setTimeout(() => {
+            const downloadBtn = document.getElementById('download-cleaned-data');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', this.downloadCleanedData);
+            }
+        }, 1000); // Give UI time to render
     },
     
     downloadCleanedData: function() {
@@ -33,6 +37,5 @@ const ExportManager = {
         });
     }
 };
-
 // Make ExportManager accessible globally
 window.ExportManager = ExportManager;
