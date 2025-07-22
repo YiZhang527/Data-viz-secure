@@ -4,12 +4,6 @@
  */
 
 const DataCleaner = {
-    initialize: function () {
-        console.log("Initializing DataCleaner...");
-        // Set up event listeners
-        document.getElementById('remove-empty-rows').addEventListener('click', this.removeEmptyRows);
-        document.getElementById('detect-outliers').addEventListener('click', this.detectOutliers);
-    },
 
     removeEmptyRows: function () {
         console.log("Removing empty rows...");
@@ -62,8 +56,7 @@ const DataCleaner = {
                 `Applied operations: ${DataStore.operations.join(", ")}`
         });
 
-        // Show download button
-        document.getElementById('download-cleaned-data').style.display = 'inline-block';
+        
     },
 
     detectOutliers: function () {
@@ -165,10 +158,6 @@ const DataCleaner = {
             `<p>Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>
              Applied operations: ${DataStore.operations.join(", ")}</p>`;
 
-        // Show download button
-        if (totalOutliers > 0) {
-            document.getElementById('download-cleaned-data').style.display = 'inline-block';
-        }
     }
 };
 
