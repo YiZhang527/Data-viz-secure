@@ -22,7 +22,6 @@ function initializeApp() {
     
     // Initialize each module
     FileHandler.initialize();
-    DataCleaner.initialize();
     ExportManager.initialize();
     AnnotatedExport.initialize();
     UIController.initialize();
