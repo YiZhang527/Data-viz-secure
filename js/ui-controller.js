@@ -72,7 +72,7 @@ const UIController = {
         `;
         dataCleaning.style.display = 'block';
     }
-}
+}, 
    
    // Display cleaning results
    displayCleaningResults: function(results) {
@@ -146,3 +146,4 @@ window.UIController = UIController;
 document.addEventListener('DOMContentLoaded', function() {
    UIController.initialize();
 });
+// update js 
