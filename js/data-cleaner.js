@@ -5,11 +5,19 @@ const DataCleaner = {
 
         // Return if already done
         if (DataStore.operations.includes("Remove Empty Rows")) {
-            UIController.displayCleaningResults({
-                message: "Remove Empty Rows operation already applied.<br>" +
-                    `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
-                    `Applied operations: ${DataStore.operations.join(", ")}`
-            });
+            // Show the previously saved message if exists
+            if (DataStore.cleaningResults && DataStore.cleaningResults.removeEmptyRowsMessage) {
+                UIController.displayCleaningResults({
+                    message: DataStore.cleaningResults.removeEmptyRowsMessage
+                });
+            } else {
+                // Fallback message
+                UIController.displayCleaningResults({
+                    message: "Remove Empty Rows operation already applied.<br>" +
+                        `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                        `Applied operations: ${DataStore.operations.join(", ")}`
+                });
+            }
             return;
         }
 
@@ -43,10 +51,16 @@ const DataCleaner = {
 
         const removedCount = data.length - cleanedData.length;
 
+        // Prepare message and save it for future reuse
+        const message = `Removed ${removedCount} empty row${removedCount !== 1 ? 's' : ''}.<br>` +
+            `Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+            `Applied operations: ${DataStore.operations.join(", ")}`;
+
+        if (!DataStore.cleaningResults) DataStore.cleaningResults = {};
+        DataStore.cleaningResults.removeEmptyRowsMessage = message;
+
         UIController.displayCleaningResults({
-            message: `Removed ${removedCount} empty row${removedCount !== 1 ? 's' : ''}.<br>` +
-                `Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
-                `Applied operations: ${DataStore.operations.join(", ")}`
+            message: message
         });
     },
 
@@ -55,11 +69,23 @@ const DataCleaner = {
 
         // Return if already done
         if (DataStore.operations.includes("Detect Outliers")) {
-            UIController.displayOutlierResults([], 0);
-            document.getElementById('cleaning-results').innerHTML +=
-                `<p>Detect Outliers operation already applied.<br>` +
-                `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
-                `Applied operations: ${DataStore.operations.join(", ")}</p>`;
+            if (DataStore.cleaningResults && DataStore.cleaningResults.detectOutliersResults) {
+                UIController.displayOutlierResults(
+                    DataStore.cleaningResults.detectOutliersResults.columnResults,
+                    DataStore.cleaningResults.detectOutliersResults.totalOutliers
+                );
+                document.getElementById('cleaning-results').innerHTML +=
+                    `<p>Detect Outliers operation already applied.<br>` +
+                    `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                    `Applied operations: ${DataStore.operations.join(", ")}</p>`;
+            } else {
+                // Fallback empty display
+                UIController.displayOutlierResults([], 0);
+                document.getElementById('cleaning-results').innerHTML +=
+                    `<p>Detect Outliers operation already applied.<br>` +
+                    `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                    `Applied operations: ${DataStore.operations.join(", ")}</p>`;
+            }
             return;
         }
 
@@ -123,6 +149,13 @@ const DataCleaner = {
 
         DataStore.currentData = cleanedData;
         DataStore.operations.push("Detect Outliers");
+
+        // Save results for reuse
+        if (!DataStore.cleaningResults) DataStore.cleaningResults = {};
+        DataStore.cleaningResults.detectOutliersResults = {
+            columnResults: columnResults,
+            totalOutliers: totalOutliers
+        };
 
         UIController.displayOutlierResults(columnResults, totalOutliers);
 
