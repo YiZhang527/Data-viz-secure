@@ -75,7 +75,6 @@ const DataCleaner = {
                     DataStore.cleaningResults.detectOutliersResults.totalOutliers
                 );
                 document.getElementById('cleaning-results').innerHTML +=
-                    `<p>Detect Outliers operation already applied.<br>` +
                     `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
                     `Applied operations: ${DataStore.operations.join(", ")}</p>`;
             } else {
