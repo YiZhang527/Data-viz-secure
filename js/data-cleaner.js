@@ -1,140 +1,119 @@
-/**
- * data-cleaner.js
- * Implements data cleaning operations
- */
-
 const DataCleaner = {
 
     removeEmptyRows: function () {
         console.log("Removing empty rows...");
+
+        // Return if already done
+        if (DataStore.operations.includes("Remove Empty Rows")) {
+            UIController.displayCleaningResults({
+                message: "Remove Empty Rows operation already applied.<br>" +
+                    `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                    `Applied operations: ${DataStore.operations.join(", ")}`
+            });
+            return;
+        }
+
         // Check if data exists
         if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('Please upload a file first.');
             return;
         }
 
-        // Get the current data (previously processed data or original)
         const data = DataStore.currentData;
-
-        // Create an array to store the cleaned data
         const cleanedData = [];
 
-        // Loop through all rows
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
-            let rowHasData = false;
+            let hasData = false;
 
-            // Check if the row has any non-empty cells
             for (let j = 0; j < row.length; j++) {
                 if (row[j] !== "" && row[j].toString().trim() !== "") {
-                    rowHasData = true;
+                    hasData = true;
                     break;
                 }
             }
 
-            // If the row has data, keep this row
-            if (rowHasData) {
+            if (hasData) {
                 cleanedData.push(row);
             }
         }
 
-        // Save the cleaned data as the new current data
         DataStore.currentData = cleanedData;
+        DataStore.operations.push("Remove Empty Rows");
 
-        // Update operations list
-        if (!DataStore.operations.includes("Remove Empty Rows")) {
-            DataStore.operations.push("Remove Empty Rows");
-        }
+        const removedCount = data.length - cleanedData.length;
 
-        // Calculate the number of removed rows
-        const removedRowsCount = data.length - cleanedData.length;
-
-        // Display results
         UIController.displayCleaningResults({
-            message: `Removed ${removedRowsCount} empty row${removedRowsCount !== 1 ? 's' : ''}.<br>` +
+            message: `Removed ${removedCount} empty row${removedCount !== 1 ? 's' : ''}.<br>` +
                 `Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
                 `Applied operations: ${DataStore.operations.join(", ")}`
         });
-
-        
     },
 
     detectOutliers: function () {
         console.log("Detecting outliers...");
-        // Check if data has been loaded
+
+        // Return if already done
+        if (DataStore.operations.includes("Detect Outliers")) {
+            UIController.displayOutlierResults([], 0);
+            document.getElementById('cleaning-results').innerHTML +=
+                `<p>Detect Outliers operation already applied.<br>` +
+                `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                `Applied operations: ${DataStore.operations.join(", ")}</p>`;
+            return;
+        }
+
         if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('Please upload a file first.');
             return;
         }
 
-        // Get the current data (previously processed data or original)
         const data = DataStore.currentData;
-
-        // Create a copy of the data for cleaning
         const cleanedData = JSON.parse(JSON.stringify(data));
-
-        // Assume the first row is the header
         const headers = data[0];
 
-        // Track outlier information
         let totalOutliers = 0;
         let columnResults = [];
 
-        // Loop through all columns
-        for (let colIndex = 0; colIndex < headers.length; colIndex++) {
-            // Collect numeric values for this column
-            const numericValues = [];
-            const valuePositions = []; // Record the row index for each value
+        for (let col = 0; col < headers.length; col++) {
+            const nums = [];
+            const positions = [];
 
-            // Start from the second row (skip header)
-            for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
-                if (data[rowIndex].length <= colIndex) continue;
-
-                const value = data[rowIndex][colIndex];
-                if (value !== "" && !isNaN(Number(value))) {
-                    numericValues.push(Number(value));
-                    valuePositions.push(rowIndex);
+            for (let row = 1; row < data.length; row++) {
+                if (data[row].length <= col) continue;
+                const val = data[row][col];
+                if (val !== "" && !isNaN(Number(val))) {
+                    nums.push(Number(val));
+                    positions.push(row);
                 }
             }
 
-            // If there's not enough numeric data, skip this column
-            if (numericValues.length < 2) continue;
+            if (nums.length < 2) continue;
 
-            // Calculate mean and standard deviation
-            const mean = numericValues.reduce((sum, val) => sum + val, 0) / numericValues.length;
-            const squaredDiffs = numericValues.map(val => Math.pow(val - mean, 2));
-            const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / numericValues.length;
+            const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+            const sqDiffs = nums.map(v => (v - mean) ** 2);
+            const variance = sqDiffs.reduce((a, b) => a + b, 0) / nums.length;
             const stdDev = Math.sqrt(variance);
 
-            // Use Z-score method to detect outliers
             const outliers = [];
 
-            for (let i = 0; i < numericValues.length; i++) {
-                const value = numericValues[i];
-                const rowIndex = valuePositions[i];
-                const zScore = (value - mean) / stdDev;
+            for (let i = 0; i < nums.length; i++) {
+                const val = nums[i];
+                const rowIdx = positions[i];
+                const z = (val - mean) / stdDev;
 
-                // If Z-score exceeds ±3, consider it an outlier
-                if (Math.abs(zScore) > 3) {
-                    outliers.push({
-                        row: rowIndex,
-                        value: value,
-                        zScore: zScore
-                    });
-
-                    // Replace outliers with null in the cleaned data
-                    cleanedData[rowIndex][colIndex] = null;
+                if (Math.abs(z) > 3) {
+                    outliers.push({ row: rowIdx, value: val, zScore: z });
+                    cleanedData[rowIdx][col] = null;
                 }
             }
 
-            // Update statistics
             totalOutliers += outliers.length;
 
-            // Record results for this column
             if (outliers.length > 0) {
-                const columnName = headers[colIndex] || `Column ${colIndex + 1}`;
+                const colName = headers[col] || `Column ${col + 1}`;
                 columnResults.push({
-                    name: columnName,
+                    name: colName,
                     outlierCount: outliers.length,
                     mean: mean,
                     stdDev: stdDev
@@ -142,24 +121,15 @@ const DataCleaner = {
             }
         }
 
-        // Save the cleaned data as the new current data
         DataStore.currentData = cleanedData;
+        DataStore.operations.push("Detect Outliers");
 
-        // Update operations list
-        if (!DataStore.operations.includes("Detect Outliers")) {
-            DataStore.operations.push("Detect Outliers");
-        }
-
-        // Display results with current data information
         UIController.displayOutlierResults(columnResults, totalOutliers);
 
-        // Add information about current data state
         document.getElementById('cleaning-results').innerHTML +=
-            `<p>Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>
-             Applied operations: ${DataStore.operations.join(", ")}</p>`;
-
+            `<p>Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+            `Applied operations: ${DataStore.operations.join(", ")}</p>`;
     }
 };
 
-// Make DataCleaner accessible globally
 window.DataCleaner = DataCleaner;
