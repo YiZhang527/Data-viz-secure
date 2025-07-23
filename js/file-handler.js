@@ -50,18 +50,18 @@ const FileHandler = {
     processFileData: function(data) {
         console.log("Processing file data...");
         
-        let jsonData;
+        let jsonData; // This will always be a 2D array
         
         if (DataStore.currentFile.name.endsWith('.csv')) {
-            // Process CSV file
+            // ✅ Process CSV as 2D array (include header row)
             const parsed = Papa.parse(data, {
-                header: true,
+                header: false, // ❗ No header, so output rows as arrays
                 dynamicTyping: true,
                 skipEmptyLines: true
             });
-            jsonData = parsed.data;
+            jsonData = parsed.data; // This is already a 2D array
         } else {
-            // Process Excel file
+            // Process Excel file as 2D array
             const workbook = XLSX.read(data, { 
                 type: 'binary',
                 cellDates: true
@@ -71,19 +71,16 @@ const FileHandler = {
             const worksheet = workbook.Sheets[firstSheetName];
             
             jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-                header: 1,  
+                header: 1,  // 2D array
                 defval: ""  
             });
         }
         
-        // Store the original data
+        // ✅ Store the original data (2D array)
         DataStore.originalData = jsonData;
         
-        // Create a simple copy that preserves dates
-        DataStore.currentData = [];
-        for (let i = 0; i < jsonData.length; i++) {
-            DataStore.currentData[i] = [...jsonData[i]];
-        }
+        // ✅ Deep copy to currentData
+        DataStore.currentData = jsonData.map(row => [...row]);
         
         // Reset operations history
         DataStore.operations = [];
@@ -91,11 +88,9 @@ const FileHandler = {
         // Display data cleaning options
         UIController.showDataCleaningArea();
         
-        // Run data validation if available
-        if (typeof DataValidator !== 'undefined' && DataValidator.validateData) {
-            DataValidator.validateData(jsonData);
-        }
+        // ✅ No validator call here (validator handles its own logic)
     }
 };
+
 // Make FileHandler accessible globally
 window.FileHandler = FileHandler;
