@@ -1,98 +1,83 @@
 /**
- * data-validator.js - Integration with DataValidator AI functionalities
- * This file adds data validation capabilities to the platform
+ * data-validator.js
+ * Adds data validation capabilities (adapted for 2D array format)
  */
 
-// Initialize validation capabilities
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Data Validator module initialized');
-    
-    // Get references to DOM elements
+
     const fileUpload = document.getElementById('file-upload');
     const validationResultsElement = document.getElementById('validation-results');
-    
-    // Setup initial state of validation results area
+
+    // Initial placeholder
     if (validationResultsElement) {
         validationResultsElement.innerHTML = '<div class="placeholder-message">Upload a file to see validation results</div>';
     }
-    
-    // Add validation functionality to the existing file upload handler
-    fileUpload.addEventListener('change', function(e) {
-        // The original handler in file-handler.js will still run
+
+    // Add validation after file upload
+    fileUpload.addEventListener('change', function (e) {
         if (e.target.files.length > 0) {
             setTimeout(() => {
-                // Wait a bit for the original handler to process the file
                 validateData(e.target.files[0]);
             }, 500);
         }
     });
-    
-    // Function to validate data
+
+    // Validate uploaded file
     function validateData(file) {
         console.log('Validating file:', file.name);
-        
-        // Clear previous validation results - only modify validation area
+
         if (validationResultsElement) {
             validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
-            
-            // Show validation is in progress
             const loadingMessage = document.createElement('div');
             loadingMessage.className = 'result-card';
             loadingMessage.innerHTML = '<p>Analyzing data quality...</p>';
             validationResultsElement.appendChild(loadingMessage);
         }
-        
-        // Read and process the file
+
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const content = e.target.result;
             processFileContent(content, file.name);
         };
-        
+
         if (file.name.endsWith('.csv')) {
             reader.readAsText(file);
         } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
             reader.readAsBinaryString(file);
         } else {
-            if (validationResultsElement) {
-                const loadingMessage = validationResultsElement.querySelector('.result-card');
-                if (loadingMessage) loadingMessage.remove();
-                showError('Unsupported file format. Please upload a CSV or Excel file.');
-            }
+            showError('Unsupported file format. Please upload a CSV or Excel file.');
             return;
         }
     }
-    
-    // Process file content based on type
+
+    // Process content into 2D array
     function processFileContent(content, filename) {
         let data;
-        
         try {
             if (filename.endsWith('.csv')) {
-                // Parse CSV using PapaParse
+                // CSV → 2D array
                 const parsedData = Papa.parse(content, {
-                    header: true,
+                    header: false,
                     dynamicTyping: true,
                     skipEmptyLines: true
                 });
                 data = parsedData.data;
             } else if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
-                // Parse Excel using SheetJS
+                // Excel → 2D array
                 const workbook = XLSX.read(content, { type: 'binary' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                data = XLSX.utils.sheet_to_json(worksheet);
+                data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
             }
-            
-            // Perform the validation once we have the data
+
             performValidation(data);
-            
         } catch (error) {
             showError('Error processing file: ' + error.message);
         }
     }
-    
-    // Show error message in validation results area
+
+    // Show error message
     function showError(message) {
         if (validationResultsElement) {
             validationResultsElement.innerHTML = '';
@@ -105,38 +90,34 @@ document.addEventListener('DOMContentLoaded', function() {
             validationResultsElement.appendChild(errorCard);
         }
     }
-    
-    // Perform the actual validation on the data
+
+    // Main validation logic
     function performValidation(data) {
         if (!validationResultsElement) return;
-        
-        // Remove loading message
         validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
-        
-        if (!data || data.length === 0) {
+
+        if (!data || data.length < 2) {
             showError('The uploaded file contains no data rows.');
             return;
         }
-        
-        // Get column names
-        const columns = Object.keys(data[0]);
-        
-        // Analyze the data for quality issues
+
+        const headers = data[0];
+        const rows = data.slice(1);
         const validationResultsArray = [];
-        
-        // 1. Missing Values Analysis
-        const missingValues = analyzeMissingValues(data, columns);
+
+        // Missing values check
+        const missingValues = analyzeMissingValues(rows, headers);
         if (missingValues.length > 0) {
             validationResultsArray.push({
                 type: 'warning',
                 title: 'Missing Values Detected',
                 description: `Found missing values in ${missingValues.length} columns: ${missingValues.join(', ')}`,
-                recommendation: 'Consider filling missing values with appropriate defaults, mean/median values, or removing incomplete rows.'
+                recommendation: 'Consider filling missing values or removing incomplete rows.'
             });
         }
-        
-        // 2. Data Type Consistency
-        const typeIssues = analyzeDataTypes(data, columns);
+
+        // Data type consistency
+        const typeIssues = analyzeDataTypes(rows, headers);
         if (typeIssues.length > 0) {
             validationResultsArray.push({
                 type: 'error',
@@ -145,15 +126,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 recommendation: 'Standardize data types by converting values to consistent formats.'
             });
         }
-        
-        // 3. Duplicate Detection
-        const duplicates = findDuplicates(data);
+
+        // Duplicate detection
+        const duplicates = findDuplicates(rows);
         if (duplicates > 0) {
             validationResultsArray.push({
                 type: 'warning',
                 title: 'Duplicate Records',
-                description: `Found ${duplicates} duplicate records in the dataset.`,
-                recommendation: 'Review and remove duplicate entries to ensure data integrity.'
+                description: `Found ${duplicates} duplicate records.`,
+                recommendation: 'Remove duplicate entries to ensure data integrity.'
             });
         } else {
             validationResultsArray.push({
@@ -163,61 +144,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 recommendation: 'Data is clean in terms of duplicates.'
             });
         }
-        
-        // 4. Outlier Detection
-        const outliers = detectOutliers(data, columns);
+
+        // Outlier detection
+        const outliers = detectOutliers(rows, headers);
         if (outliers.length > 0) {
             validationResultsArray.push({
                 type: 'warning',
                 title: 'Potential Outliers',
                 description: `Detected potential outliers in ${outliers.length} numeric columns.`,
-                recommendation: 'Review outlier values to determine if they are valid data points or errors.'
+                recommendation: 'Review outlier values to confirm validity.'
             });
         }
-        
-        // 5. Data Quality Score
-        const qualityScore = calculateQualityScore(data, columns);
-        
-        // Display all validation results
+
+        // Data Quality Score
+        const qualityScore = calculateQualityScore(rows, headers);
+
         displayResults(validationResultsArray, qualityScore);
     }
-    
-    // Analyze missing values in the data
-    function analyzeMissingValues(data, columns) {
+
+    // Analyze missing values
+    function analyzeMissingValues(rows, headers) {
         const missingColumns = [];
-        columns.forEach(col => {
-            const missingCount = data.filter(row => 
-                row[col] === null || row[col] === undefined || row[col] === ''
-            ).length;
+        headers.forEach((header, colIndex) => {
+            const missingCount = rows.filter(row => !row[colIndex] && row[colIndex] !== 0).length;
             if (missingCount > 0) {
-                missingColumns.push(`${col} (${missingCount} missing)`);
+                missingColumns.push(`${header} (${missingCount} missing)`);
             }
         });
         return missingColumns;
     }
-    
+
     // Analyze data type consistency
-    function analyzeDataTypes(data, columns) {
+    function analyzeDataTypes(rows, headers) {
         const typeIssues = [];
-        columns.forEach(col => {
+        headers.forEach((header, colIndex) => {
             const types = new Set();
-            data.forEach(row => {
-                if (row[col] !== null && row[col] !== undefined && row[col] !== '') {
-                    types.add(typeof row[col]);
+            rows.forEach(row => {
+                const value = row[colIndex];
+                if (value !== "" && value !== null && value !== undefined) {
+                    types.add(typeof value);
                 }
             });
             if (types.size > 1) {
-                typeIssues.push(`${col} (${Array.from(types).join(', ')})`);
+                typeIssues.push(`${header} (${Array.from(types).join(', ')})`);
             }
         });
         return typeIssues;
     }
-    
+
     // Find duplicate records
-    function findDuplicates(data) {
+    function findDuplicates(rows) {
         const seen = new Set();
         let duplicates = 0;
-        data.forEach(row => {
+        rows.forEach(row => {
             const key = JSON.stringify(row);
             if (seen.has(key)) {
                 duplicates++;
@@ -227,56 +206,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         return duplicates;
     }
-    
-    // Detect outliers using z-score method
-    function detectOutliers(data, columns) {
+
+    // Detect outliers (Z-score method)
+    function detectOutliers(rows, headers) {
         const outlierColumns = [];
-        columns.forEach(col => {
-            const values = data.map(row => row[col]).filter(val => typeof val === 'number');
+        headers.forEach((header, colIndex) => {
+            const values = rows.map(r => r[colIndex]).filter(val => typeof val === 'number');
             if (values.length > 0) {
                 const mean = values.reduce((a, b) => a + b, 0) / values.length;
                 const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length);
                 const outliers = values.filter(val => Math.abs(val - mean) > 2 * std);
                 if (outliers.length > 0) {
-                    outlierColumns.push(`${col} (${outliers.length} outliers)`);
+                    outlierColumns.push(`${header} (${outliers.length} outliers)`);
                 }
             }
         });
         return outlierColumns;
     }
-    
-    // Calculate overall data quality score
-    function calculateQualityScore(data, columns) {
+
+    // Calculate quality score
+    function calculateQualityScore(rows, headers) {
         let score = 100;
-        
-        // Penalize missing values
-        const totalCells = data.length * columns.length;
-        const missingCells = data.reduce((count, row) => {
-            return count + columns.filter(col => 
-                row[col] === null || row[col] === undefined || row[col] === ''
-            ).length;
+        const totalCells = rows.length * headers.length;
+
+        // Missing values penalty
+        const missingCells = rows.reduce((count, row) => {
+            return count + row.filter(cell => cell === "" || cell === null || cell === undefined).length;
         }, 0);
         score -= (missingCells / totalCells) * 30;
-        
-        // Penalize duplicates
-        const duplicateCount = findDuplicates(data);
-        score -= (duplicateCount / data.length) * 20;
-        
-        // Penalize type inconsistencies
-        const typeIssues = analyzeDataTypes(data, columns);
-        score -= (typeIssues.length / columns.length) * 25;
-        
+
+        // Duplicate penalty
+        const duplicateCount = findDuplicates(rows);
+        score -= (duplicateCount / rows.length) * 20;
+
+        // Type issues penalty
+        const typeIssues = analyzeDataTypes(rows, headers);
+        score -= (typeIssues.length / headers.length) * 25;
+
         return Math.max(0, Math.round(score));
     }
-    
-    // Display validation results - only update validation area
+
+    // Display results
     function displayResults(results, qualityScore) {
         if (!validationResultsElement) return;
-        
-        // Focus only on updating validation results section
         validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
-        
-        // Add quality score card at the top
+
         const scoreCard = document.createElement('div');
         scoreCard.className = `result-card ${qualityScore >= 80 ? 'success' : qualityScore >= 60 ? 'warning' : 'error'}`;
         scoreCard.innerHTML = `
@@ -284,15 +258,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="quality-score">
                 <div class="score-value">${qualityScore}%</div>
                 <p>${
-                    qualityScore >= 80 ? 'Excellent data quality!' : 
-                    qualityScore >= 60 ? 'Good data quality with room for improvement.' : 
+            qualityScore >= 80 ? 'Excellent data quality!' :
+                qualityScore >= 60 ? 'Good data quality with room for improvement.' :
                     'Poor data quality - significant cleaning required.'
-                }</p>
+        }</p>
             </div>
         `;
         validationResultsElement.appendChild(scoreCard);
-        
-        // Add other result cards
+
         results.forEach(result => {
             const card = document.createElement('div');
             card.className = `result-card ${result.type}`;
