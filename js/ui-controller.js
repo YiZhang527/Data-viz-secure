@@ -26,7 +26,6 @@ const UIController = {
                 <h3>Selected File:</h3>
                 <p>File name: ${file.name}</p>
                 <p>File size: ${(file.size / 1024).toFixed(2)} KB</p>
-                <p>File type: ${file.type || 'Unknown'}</p>
                 <p>Last modified: ${new Date(file.lastModified).toLocaleString()}</p>
             `;
         }
