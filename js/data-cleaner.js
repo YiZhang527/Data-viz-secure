@@ -101,19 +101,24 @@ const DataCleaner = {
         let columnResults = [];
 
         for (let col = 0; col < headers.length; col++) {
-            const nums = [];
-            const positions = [];
-
-            for (let row = 1; row < data.length; row++) {
-                if (data[row].length <= col) continue;
-                const val = data[row][col];
-                if (val !== "" && !isNaN(Number(val))) {
-                    nums.push(Number(val));
-                    positions.push(row);
-                }
+    const nums = [];
+    const positions = [];
+    let isPureNumeric = true;
+    
+    for (let row = 1; row < data.length; row++) {
+        if (data[row].length <= col) continue;
+        const val = data[row][col];
+        if (val !== "" && val != null) {
+            if (!/^-?\d*\.?\d+$/.test(val.toString().trim())) {
+                isPureNumeric = false;
+                break; // Break on non-numeric value
             }
-
-            if (nums.length < 2) continue;
+            nums.push(Number(val));
+            positions.push(row);
+        }
+    }
+    
+    if (!isPureNumeric || nums.length < 2) continue;
 
             const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
             const sqDiffs = nums.map(v => (v - mean) ** 2);
