@@ -64,6 +64,59 @@ const DataCleaner = {
         });
     },
 
+    removeDuplicateRows: function () {
+        console.log("Removing duplicate rows...");
+
+        if (DataStore.operations.includes("Remove Duplicate Rows")) {
+            if (DataStore.cleaningResults && DataStore.cleaningResults.removeDuplicateRowsMessage) {
+                UIController.displayCleaningResults({
+                    message: DataStore.cleaningResults.removeDuplicateRowsMessage
+                });
+            } else {
+                UIController.displayCleaningResults({
+                    message: "Remove Duplicate Rows operation already applied.<br>" +
+                        `Current data: ${DataStore.currentData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+                        `Applied operations: ${DataStore.operations.join(", ")}`
+                });
+            }
+            return;
+        }
+
+        if (!DataStore.currentData || DataStore.currentData.length === 0) {
+            alert('Please upload a file first.');
+            return;
+        }
+
+        const data = DataStore.currentData;
+        const seen = new Set();
+        const cleanedData = [];
+
+        for (let i = 0; i < data.length; i++) {
+            const rowStr = JSON.stringify(data[i]);
+            if (!seen.has(rowStr)) {
+                seen.add(rowStr);
+                cleanedData.push(data[i]);
+            }
+        }
+
+        DataStore.currentData = cleanedData;
+        DataStore.operations.push("Remove Duplicate Rows");
+
+        const removedCount = data.length - cleanedData.length;
+
+        const message = `Removed ${removedCount} duplicate row${removedCount !== 1 ? 's' : ''}.<br>` +
+            `Current data: ${cleanedData.length} rows (Original: ${DataStore.originalData.length} rows)<br>` +
+            `Applied operations: ${DataStore.operations.join(", ")}`;
+
+        if (!DataStore.cleaningResults) DataStore.cleaningResults = {};
+        DataStore.cleaningResults.removeDuplicateRowsMessage = message;
+
+        UIController.displayCleaningResults({
+            message: message
+        });
+    },
+
+
     detectOutliers: function () {
         console.log("Detecting outliers...");
 
