@@ -44,6 +44,7 @@ const UIController = {
                 <h3>Data Cleaning Options</h3>
                 <div>
                     <button id="remove-empty-rows" class="clean-btn">Remove Empty Rows</button>
+                    <button id="remove-duplicate-rows" class="clean-btn">Remove Duplicate Rows</button>
                     <button id="detect-outliers" class="clean-btn">Detect Outliers</button>
                     <button id="download-cleaned-data" class="clean-btn" >Download Cleaned Data</button>
                     <button id="download-annotated-data" class="clean-btn" >Download Annotated Data</button>
@@ -57,6 +58,11 @@ const UIController = {
                 if (removeEmptyRowsBtn) {
                     removeEmptyRowsBtn.addEventListener('click', DataCleaner.removeEmptyRows);
                 }
+                const removeDuplicateRowsBtn = document.getElementById('remove-duplicate-rows');
+if (removeDuplicateRowsBtn) {
+    removeDuplicateRowsBtn.addEventListener('click', DataCleaner.removeDuplicateRows);
+}
+
                 
                 const detectOutliersBtn = document.getElementById('detect-outliers');
                 if (detectOutliersBtn) {
