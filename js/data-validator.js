@@ -207,15 +207,38 @@ document.addEventListener('DOMContentLoaded', function () {
         return duplicates;
     }
 
-    // Detect outliers (Z-score method)
+    // Detect outliers (Z-score method) - Updated to match DataCleaner logic
     function detectOutliers(rows, headers) {
         const outlierColumns = [];
+        
         headers.forEach((header, colIndex) => {
-            const values = rows.map(r => r[colIndex]).filter(val => typeof val === 'number');
-            if (values.length > 0) {
-                const mean = values.reduce((a, b) => a + b, 0) / values.length;
-                const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length);
-                const outliers = values.filter(val => Math.abs(val - mean) > 2 * std);
+            const nums = [];
+            const positions = [];
+            let isPureNumeric = true;
+            
+            // Check if column contains pure numeric values
+            for (let row = 0; row < rows.length; row++) {
+                if (rows[row].length <= colIndex) continue;
+                const val = rows[row][colIndex];
+                
+                if (val !== "" && val != null && val !== undefined) {
+                    // Use regex to check for numeric values (can parse string numbers)
+                    if (!/^-?\d*\.?\d+$/.test(val.toString().trim())) {
+                        isPureNumeric = false;
+                        break; // Break on non-numeric value
+                    }
+                    nums.push(Number(val));
+                    positions.push(row);
+                }
+            }
+            
+            // Skip if not pure numeric or not enough data
+            if (!isPureNumeric || nums.length < 2) return;
+            
+            if (nums.length > 0) {
+                const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+                const std = Math.sqrt(nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / nums.length);
+                const outliers = nums.filter(val => Math.abs(val - mean) > 3 * std); // Changed from 2 to 3
                 if (outliers.length > 0) {
                     outlierColumns.push(`${header} (${outliers.length} outliers)`);
                 }
