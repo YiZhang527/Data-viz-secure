@@ -96,8 +96,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validationResultsElement) return;
         validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
 
-        if (!data || data.length < 2) {
-            showError('The uploaded file contains no data rows.');
+        // Using scoring engine
+        const result = ScoringEngine.analyzeDataQuality();
+        if (result.error) {
+            showError(result.error);
             return;
         }
 
@@ -157,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Data Quality Score
-        const qualityScore = calculateQualityScore(rows, headers);
+        const qualityScore = result.score;
 
         displayResults(validationResultsArray, qualityScore);
     }
@@ -210,17 +212,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Detect outliers (Z-score method) - Updated to match DataCleaner logic
     function detectOutliers(rows, headers) {
         const outlierColumns = [];
-        
+
         headers.forEach((header, colIndex) => {
             const nums = [];
             const positions = [];
             let isPureNumeric = true;
-            
+
             // Check if column contains pure numeric values
             for (let row = 0; row < rows.length; row++) {
                 if (rows[row].length <= colIndex) continue;
                 const val = rows[row][colIndex];
-                
+
                 if (val !== "" && val != null && val !== undefined) {
                     // Use regex to check for numeric values (can parse string numbers)
                     if (!/^-?\d*\.?\d+$/.test(val.toString().trim())) {
@@ -231,10 +233,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     positions.push(row);
                 }
             }
-            
+
             // Skip if not pure numeric or not enough data
             if (!isPureNumeric || nums.length < 2) return;
-            
+
             if (nums.length > 0) {
                 const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
                 const std = Math.sqrt(nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / nums.length);
@@ -280,11 +282,10 @@ document.addEventListener('DOMContentLoaded', function () {
             <h4>Overall Data Quality Score</h4>
             <div class="quality-score">
                 <div class="score-value">${qualityScore}%</div>
-                <p>${
-            qualityScore >= 80 ? 'Excellent data quality!' :
+                <p>${qualityScore >= 80 ? 'Excellent data quality!' :
                 qualityScore >= 60 ? 'Good data quality with room for improvement.' :
                     'Poor data quality - significant cleaning required.'
-        }</p>
+            }</p>
             </div>
         `;
         validationResultsElement.appendChild(scoreCard);
