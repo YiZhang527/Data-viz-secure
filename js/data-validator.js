@@ -1,6 +1,7 @@
 /**
  * data-validator.js
- * Adds data validation capabilities (adapted for 2D array format)
+ * Data validation module that works with DataStore
+ * Uses data already parsed by file-handler.js instead of re-parsing
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -15,17 +16,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add validation after file upload
+    // Wait for file-handler to process the data first
     fileUpload.addEventListener('change', function (e) {
         if (e.target.files.length > 0) {
+            // Give file-handler time to process the file
             setTimeout(() => {
-                validateData(e.target.files[0]);
+                validateData();
             }, 500);
         }
     });
 
-    // Validate uploaded file
-    function validateData(file) {
-        console.log('Validating file:', file.name);
+    // Validate data from DataStore
+    function validateData() {
+        console.log('Starting validation...');
 
         if (validationResultsElement) {
             validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
@@ -35,46 +38,14 @@ document.addEventListener('DOMContentLoaded', function () {
             validationResultsElement.appendChild(loadingMessage);
         }
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const content = e.target.result;
-            processFileContent(content, file.name);
-        };
-
-        if (file.name.endsWith('.csv')) {
-            reader.readAsText(file);
-        } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-            reader.readAsBinaryString(file);
-        } else {
-            showError('Unsupported file format. Please upload a CSV or Excel file.');
-            return;
-        }
-    }
-
-    // Process content into 2D array
-    function processFileContent(content, filename) {
-        let data;
-        try {
-            if (filename.endsWith('.csv')) {
-                // CSV → 2D array
-                const parsedData = Papa.parse(content, {
-                    header: false,
-                    dynamicTyping: true,
-                    skipEmptyLines: true
-                });
-                data = parsedData.data;
-            } else if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
-                // Excel → 2D array
-                const workbook = XLSX.read(content, { type: 'binary' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+        // Use data from DataStore (already parsed by file-handler.js)
+        setTimeout(() => {
+            if (DataStore.originalData && DataStore.originalData.length > 0) {
+                performValidation(DataStore.originalData);
+            } else {
+                showError('No data available. Please ensure file is properly loaded.');
             }
-
-            performValidation(data);
-        } catch (error) {
-            showError('Error processing file: ' + error.message);
-        }
+        }, 100);
     }
 
     // Show error message
@@ -96,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validationResultsElement) return;
         validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
 
-        // Using scoring engine
+        // Using scoring engine with DataStore data
         const result = ScoringEngine.analyzeDataQuality();
         if (result.error) {
             showError(result.error);
@@ -158,17 +129,23 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Data Quality Score
+        // Data Quality Score from ScoringEngine
         const qualityScore = result.score;
 
         displayResults(validationResultsArray, qualityScore);
     }
 
-    // Analyze missing values
+    // Analyze missing values - consistent with scoring-engine logic
     function analyzeMissingValues(rows, headers) {
         const missingColumns = [];
         headers.forEach((header, colIndex) => {
-            const missingCount = rows.filter(row => !row[colIndex] && row[colIndex] !== 0).length;
+            let missingCount = 0;
+            rows.forEach(row => {
+                // Match the exact condition from scoring-engine
+                if (row[colIndex] === "" || row[colIndex] === null || row[colIndex] === undefined) {
+                    missingCount++;
+                }
+            });
             if (missingCount > 0) {
                 missingColumns.push(`${header} (${missingCount} missing)`);
             }
@@ -180,21 +157,49 @@ document.addEventListener('DOMContentLoaded', function () {
     function analyzeDataTypes(rows, headers) {
         const typeIssues = [];
         headers.forEach((header, colIndex) => {
-            const types = new Set();
+            const types = new Map();
+            
             rows.forEach(row => {
                 const value = row[colIndex];
                 if (value !== "" && value !== null && value !== undefined) {
-                    types.add(typeof value);
+                    // Determine actual data type more accurately
+                    let dataType;
+                    
+                    // Check if it's a string that looks like a number
+                    if (typeof value === 'string') {
+                        const trimmed = value.trim();
+                        if (/^-?\d*\.?\d+$/.test(trimmed)) {
+                            dataType = 'numeric-string';
+                        } else if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(trimmed) || 
+                                   /^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                            dataType = 'date-string';
+                        } else {
+                            dataType = 'string';
+                        }
+                    } else if (typeof value === 'number') {
+                        dataType = 'number';
+                    } else {
+                        dataType = typeof value;
+                    }
+                    
+                    types.set(dataType, (types.get(dataType) || 0) + 1);
                 }
             });
-            if (types.size > 1) {
-                typeIssues.push(`${header} (${Array.from(types).join(', ')})`);
+            
+            // Only flag as issue if we have mixed types that matter
+            // (e.g., don't flag if we have both 'number' and 'numeric-string')
+            const typeKeys = Array.from(types.keys());
+            const hasRealMixedTypes = typeKeys.some(t => t === 'string') && 
+                                      typeKeys.some(t => t.includes('numeric') || t === 'number');
+            
+            if (hasRealMixedTypes) {
+                typeIssues.push(`${header} (mixed: ${typeKeys.join(', ')})`);
             }
         });
         return typeIssues;
     }
 
-    // Find duplicate records
+    // Find duplicate records - matches scoring-engine logic
     function findDuplicates(rows) {
         const seen = new Set();
         let duplicates = 0;
@@ -209,66 +214,56 @@ document.addEventListener('DOMContentLoaded', function () {
         return duplicates;
     }
 
-    // Detect outliers (Z-score method) - Updated to match DataCleaner logic
+    // Detect outliers - matches scoring-engine accuracy check
     function detectOutliers(rows, headers) {
         const outlierColumns = [];
 
         headers.forEach((header, colIndex) => {
-            const nums = [];
-            const positions = [];
+            const columnValues = [];
             let isPureNumeric = true;
 
-            // Check if column contains pure numeric values
-            for (let row = 0; row < rows.length; row++) {
-                if (rows[row].length <= colIndex) continue;
-                const val = rows[row][colIndex];
-
-                if (val !== "" && val != null && val !== undefined) {
-                    // Use regex to check for numeric values (can parse string numbers)
-                    if (!/^-?\d*\.?\d+$/.test(val.toString().trim())) {
-                        isPureNumeric = false;
-                        break; // Break on non-numeric value
-                    }
-                    nums.push(Number(val));
-                    positions.push(row);
+            // Collect numeric values - matching scoring-engine logic
+            for (let i = 0; i < rows.length; i++) {
+                const val = rows[i][colIndex];
+                
+                if (val === "" || val === null || val === undefined) {
+                    continue;
                 }
+                
+                // Try to parse as number
+                const strVal = val.toString().trim();
+                const numVal = parseFloat(strVal);
+                
+                if (isNaN(numVal)) {
+                    isPureNumeric = false;
+                    break;
+                }
+                
+                columnValues.push(numVal);
             }
 
-            // Skip if not pure numeric or not enough data
-            if (!isPureNumeric || nums.length < 2) return;
+            // Skip if not numeric or not enough data
+            if (!isPureNumeric || columnValues.length < 2) {
+                return;
+            }
 
-            if (nums.length > 0) {
-                const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
-                const std = Math.sqrt(nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / nums.length);
-                const outliers = nums.filter(val => Math.abs(val - mean) > 3 * std); // Changed from 2 to 3
-                if (outliers.length > 0) {
-                    outlierColumns.push(`${header} (${outliers.length} outliers)`);
-                }
+            // Calculate statistics
+            const mean = columnValues.reduce((a, b) => a + b, 0) / columnValues.length;
+            const variance = columnValues.reduce((sum, value) => 
+                sum + Math.pow(value - mean, 2), 0) / columnValues.length;
+            const std = Math.sqrt(variance);
+            
+            // Count outliers (3 standard deviations, matching scoring-engine)
+            const outlierCount = columnValues.filter(val => 
+                Math.abs(val - mean) > 3 * std
+            ).length;
+            
+            if (outlierCount > 0) {
+                outlierColumns.push(`${header} (${outlierCount} outliers)`);
             }
         });
+        
         return outlierColumns;
-    }
-
-    // Calculate quality score
-    function calculateQualityScore(rows, headers) {
-        let score = 100;
-        const totalCells = rows.length * headers.length;
-
-        // Missing values penalty
-        const missingCells = rows.reduce((count, row) => {
-            return count + row.filter(cell => cell === "" || cell === null || cell === undefined).length;
-        }, 0);
-        score -= (missingCells / totalCells) * 30;
-
-        // Duplicate penalty
-        const duplicateCount = findDuplicates(rows);
-        score -= (duplicateCount / rows.length) * 20;
-
-        // Type issues penalty
-        const typeIssues = analyzeDataTypes(rows, headers);
-        score -= (typeIssues.length / headers.length) * 25;
-
-        return Math.max(0, Math.round(score));
     }
 
     // Display results
@@ -276,20 +271,27 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validationResultsElement) return;
         validationResultsElement.innerHTML = '<h3>Data Validation Results</h3>';
 
+        // Quality score card
         const scoreCard = document.createElement('div');
-        scoreCard.className = `result-card ${qualityScore >= 80 ? 'success' : qualityScore >= 60 ? 'warning' : 'error'}`;
+        scoreCard.className = `result-card ${
+            qualityScore >= 80 ? 'success' : 
+            qualityScore >= 60 ? 'warning' : 
+            'error'
+        }`;
         scoreCard.innerHTML = `
             <h4>Overall Data Quality Score</h4>
             <div class="quality-score">
                 <div class="score-value">${qualityScore}%</div>
-                <p>${qualityScore >= 80 ? 'Excellent data quality!' :
-                qualityScore >= 60 ? 'Good data quality with room for improvement.' :
+                <p>${
+                    qualityScore >= 80 ? 'Excellent data quality!' :
+                    qualityScore >= 60 ? 'Good data quality with room for improvement.' :
                     'Poor data quality - significant cleaning required.'
-            }</p>
+                }</p>
             </div>
         `;
         validationResultsElement.appendChild(scoreCard);
 
+        // Individual validation results
         results.forEach(result => {
             const card = document.createElement('div');
             card.className = `result-card ${result.type}`;
