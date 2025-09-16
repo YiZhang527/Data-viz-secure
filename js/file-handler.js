@@ -56,7 +56,7 @@ const FileHandler = {
             // ✅ Process CSV as 2D array (include header row)
             const parsed = Papa.parse(data, {
                 header: false, // ❗ No header, so output rows as arrays
-                dynamicTyping: true,
+                dynamicTyping: false,
                 skipEmptyLines: true
             });
             jsonData = parsed.data; // This is already a 2D array
