@@ -1,6 +1,7 @@
 /**
  * scoring-engine.js
  * Data quality scoring engine with four-dimension analysis
+ * Exact match with Python logic
  */
 const ScoringEngine = {
     // Main analysis function
@@ -9,7 +10,7 @@ const ScoringEngine = {
         const data = DataStore.originalData;
 
         // Check if data exists
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
             return { error: "File is empty" };
         }
 
@@ -22,11 +23,22 @@ const ScoringEngine = {
         const headers = data[0];
         const dataRows = data.slice(1);
 
+        // Normalize data to ensure each row has same length as headers
+        // This matches Python's behavior where missing cells are empty strings
+        const normalizedDataRows = dataRows.map(row => {
+            const normalizedRow = [];
+            for (let j = 0; j < headers.length; j++) {
+                // Convert undefined to empty string to match Python
+                normalizedRow[j] = row[j] !== undefined ? row[j] : "";
+            }
+            return normalizedRow;
+        });
+
         // Calculate four dimensions
-        const uniquenessScore = ScoringEngine.calculateUniqueness(dataRows, headers);
-        const completenessScore = ScoringEngine.calculateCompleteness(dataRows, headers);
-        const accuracyScore = ScoringEngine.calculateAccuracy(dataRows, headers);
-        const consistencyScore = ScoringEngine.calculateConsistency(dataRows, headers);
+        const uniquenessScore = ScoringEngine.calculateUniqueness(normalizedDataRows, headers);
+        const completenessScore = ScoringEngine.calculateCompleteness(normalizedDataRows, headers);
+        const accuracyScore = ScoringEngine.calculateAccuracy(normalizedDataRows, headers);
+        const consistencyScore = ScoringEngine.calculateConsistency(normalizedDataRows, headers);
 
         // Calculate overall score
         let validDimensions = 0;
@@ -89,7 +101,8 @@ const ScoringEngine = {
             let missingCount = 0;
 
             for (let i = 0; i < dataRows.length; i++) {
-                if (dataRows[i][j] === "" || dataRows[i][j] === null || dataRows[i][j] === undefined) {
+                // Match Python: only check for empty string and null
+                if (dataRows[i][j] === "" || dataRows[i][j] === null) {
                     missingCount++;
                 }
             }
@@ -100,10 +113,12 @@ const ScoringEngine = {
         }
 
         // Calculate average completeness
-        const avgScore = columnCompleteRates.reduce((a, b) => a + b, 0) / headers.length;
+        const avgScore = columnCompleteRates.length > 0 ? 
+            columnCompleteRates.reduce((a, b) => a + b, 0) / headers.length : 0;
         
         // Find minimum completeness
-        const minScore = Math.min(...columnCompleteRates);
+        const minScore = columnCompleteRates.length > 0 ? 
+            Math.min(...columnCompleteRates) : 0;
 
         // Apply penalty: average × sqrt(min/100)
         const score = avgScore * Math.sqrt(minScore / 100);
@@ -124,21 +139,27 @@ const ScoringEngine = {
             for (let i = 0; i < dataRows.length; i++) {
                 const val = dataRows[i][j];
                 
-                // Skip empty values
-                if (val === "" || val === null || val === undefined) { 
+                // Skip empty values - match Python exactly
+                if (val === "" || val === null) { 
                     continue; 
                 }
                 
                 // Try to parse as number
-                const strVal = val.toString().trim();
-                const numVal = parseFloat(strVal);
-                
-                if (isNaN(numVal)) {
+                let numVal;
+                try {
+                    const strVal = String(val).trim();
+                    numVal = parseFloat(strVal);
+                    
+                    if (isNaN(numVal)) {
+                        isPureNumeric = false;
+                        break;
+                    }
+                    
+                    columnValues.push(numVal);
+                } catch (e) {
                     isPureNumeric = false;
                     break;
                 }
-                
-                columnValues.push(numVal);
             }
 
             // Skip if not numeric or empty
@@ -148,7 +169,8 @@ const ScoringEngine = {
 
             // Calculate mean and standard deviation
             const mean = columnValues.reduce((a, b) => a + b, 0) / columnValues.length;
-            const variance = columnValues.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / columnValues.length;
+            const variance = columnValues.reduce((sum, value) => 
+                sum + Math.pow(value - mean, 2), 0) / columnValues.length;
             const standardDeviation = Math.sqrt(variance);
             
             // Count outliers (outside 3 standard deviations)
@@ -196,20 +218,28 @@ const ScoringEngine = {
             for (let i = 0; i < dataRows.length; i++) {
                 const val = dataRows[i][j];
 
-                // Skip empty values - match Python's condition exactly
-                if (val === "" || val === null || val === undefined) {
+                // Skip empty values - match Python exactly
+                if (val === "" || val === null) {
                     continue;
                 }
 
                 nonEmptyCount++;
-                const valStr = val.toString().trim();
+                const valStr = String(val).trim();
 
                 // Check type - match Python logic exactly
                 if (['true', 'false', 'yes', 'no'].includes(valStr.toLowerCase())) {
                     typeCount['boolean']++;
                 } else if (valStr.includes('/') || valStr.includes('-')) {
                     // Simple date check - if contains digits with / or -
-                    if (/\d/.test(valStr)) {
+                    let hasDigit = false;
+                    for (let c of valStr) {
+                        if (c >= '0' && c <= '9') {
+                            hasDigit = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hasDigit) {
                         typeCount['date']++;
                     } else {
                         typeCount['text']++;
@@ -223,7 +253,7 @@ const ScoringEngine = {
                         } else {
                             typeCount['text']++;
                         }
-                    } catch {
+                    } catch (e) {
                         typeCount['text']++;
                     }
                 }
@@ -247,11 +277,12 @@ const ScoringEngine = {
             columnRates.reduce((a, b) => a + b, 0) / columnRates.length : 0;
         
         // Find minimum consistency
-        const minScore = columnRates.length > 0 ? Math.min(...columnRates) : 0;
+        const minScore = columnRates.length > 0 ? 
+            Math.min(...columnRates) : 0;
 
         // Apply penalty: average × sqrt(min/100)
         const score = avgScore * Math.sqrt(minScore / 100);
         
         return Math.round(score);
     }
-}
+};
