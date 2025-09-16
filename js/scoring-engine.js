@@ -1,8 +1,3 @@
-/**
- * scoring-engine.js
- * JS Data Quality Scoring Engine
- * Fully aligned with Python logic
- */
 const ScoringEngine = {
     analyzeDataQuality: function () {
         const data = DataStore.originalData;
@@ -13,15 +8,13 @@ const ScoringEngine = {
         const headers = data[0];
         const dataRows = data.slice(1);
 
-        // Normalize rows to match Python behavior
-        const normalizedRows = dataRows.map(row => headers.map((_, j) => (row[j] !== undefined ? row[j] : "")));
+        const normalizedRows = dataRows;
 
         const uniquenessScore = ScoringEngine.calculateUniqueness(normalizedRows, headers);
         const { score: completenessScore, columnScores: columnCompleteness } = ScoringEngine.calculateCompleteness(normalizedRows, headers);
         const { score: accuracyScore, columnScores: columnAccuracy } = ScoringEngine.calculateAccuracy(normalizedRows, headers);
         const { score: consistencyScore, columnScores: columnConsistency } = ScoringEngine.calculateConsistency(normalizedRows, headers);
 
-        // Calculate overall score
         let total = 0, valid = 0;
         if (uniquenessScore !== null) { total += uniquenessScore; valid++; }
         if (completenessScore !== null) { total += completenessScore; valid++; }
@@ -31,7 +24,7 @@ const ScoringEngine = {
         const overallScore = valid > 0 ? total / valid : 0;
 
         return {
-            score: Math.round(overallScore), // 网页显示用
+            score: Math.round(overallScore),
             dimensions: {
                 uniqueness: uniquenessScore,
                 completeness: completenessScore,
@@ -81,7 +74,6 @@ const ScoringEngine = {
             const vals = [];
             let isNumeric = true;
 
-            // 使用传统for循环，支持break
             for (let i = 0; i < rows.length; i++) {
                 const v = rows[i][j];
                 if (v === "" || v === null) continue;
@@ -93,16 +85,15 @@ const ScoringEngine = {
 
             if (!isNumeric || vals.length === 0) continue;
 
-            // mean & standard deviation
             const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-            const std = Math.sqrt(vals.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / vals.length);
+            const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+            const std = Math.sqrt(variance);
 
-            // detect outliers
-            const outliers = vals.filter(x => x < mean - 3 * std || x > mean + 3 * std);
-            const colScore = ((vals.length - outliers.length) / vals.length) * 100;
+            const outliers = vals.filter(v => v < mean - 3 * std || v > mean + 3 * std);
+            const columnScore = ((vals.length - outliers.length) / vals.length) * 100;
 
-            columnScores[headers[j]] = Math.round(colScore);
-            rates.push(colScore);
+            columnScores[headers[j]] = Math.round(columnScore);
+            rates.push(columnScore);
         }
 
         if (rates.length === 0) return { score: null, columnScores: {} };
@@ -127,18 +118,29 @@ const ScoringEngine = {
                 if (v === "" || v === null) continue;
 
                 nonEmpty++;
-                const s = String(v).trim();
+                const valStr = String(v).trim();
 
-                if (['true','false','yes','no'].includes(s.toLowerCase())) typeCount.boolean++;
-                else if (s.includes('/') || s.includes('-')) {
-                    typeCount[/[0-9]/.test(s) ? 'date' : 'text']++;
-                } else if (!isNaN(parseFloat(s)) && isFinite(parseFloat(s))) typeCount.numeric++;
-                else typeCount.text++;
+                if (["true", "false", "yes", "no"].includes(valStr.toLowerCase())) {
+                    typeCount.boolean++;
+                } else if (valStr.includes("/") || valStr.includes("-")) {
+                    if (/[0-9]/.test(valStr)) typeCount.date++;
+                    else typeCount.text++;
+                } else {
+                    if (!isNaN(parseFloat(valStr))) typeCount.numeric++;
+                    else typeCount.text++;
+                }
             }
 
-            const colScore = nonEmpty === 0 ? 100 : (Math.max(...Object.values(typeCount)) / nonEmpty) * 100;
-            columnScores[headers[j]] = Math.round(colScore);
-            rates.push(colScore);
+            let columnScore;
+            if (nonEmpty === 0) {
+                columnScore = 100;
+            } else {
+                const maxCount = Math.max(...Object.values(typeCount));
+                columnScore = (maxCount / nonEmpty) * 100;
+            }
+
+            columnScores[headers[j]] = Math.round(columnScore);
+            rates.push(columnScore);
         }
 
         const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
