@@ -26,18 +26,16 @@ const ScoringEngine = {
 
         // Calculate four dimensions
         console.log("Calculating uniqueness...");
-
-        // 1. Uniqueness - check duplicate rows
         const uniquenessScore = ScoringEngine.calculateUniqueness(dataRows);
 
-        // 2. Completeness - check missing values
+        console.log("Calculating completeness...");
         const completenessScore = ScoringEngine.calculateCompleteness(dataRows, headers);
 
-        // 3. Accuracy - check outliers(numeric columns only)
+        console.log("Calculating accuracy...");
         const accuracyScore = ScoringEngine.calculateAccuracy(dataRows, headers);
 
-        // 4. Consistency - check format patterns
-        const consistencyScore = ScoringEngine.calculateConsistency(dataRows);
+        console.log("Calculating consistency...");
+        const consistencyScore = ScoringEngine.calculateConsistency(dataRows, headers);
 
         // Calculate overall score
         let validDimensions = 0;
@@ -61,7 +59,7 @@ const ScoringEngine = {
             validDimensions++;
         }
 
-        //Add consistency score if valid
+        // Add consistency score if valid
         if (consistencyScore !== null) {
             totalScore += consistencyScore;
             validDimensions++;
@@ -70,14 +68,13 @@ const ScoringEngine = {
         // Calculate average score
         const overallScore = validDimensions > 0 ? totalScore / validDimensions : 0;
 
-        // Return results
+        // Return only the overall score
         return {
             score: Math.round(overallScore)
         };
+    },
 
-    }, // Main function ends
-
-    // Calculate uniqueness score(duplicate detection)
+    // Calculate uniqueness score (row-level duplicate detection)
     calculateUniqueness: function (dataRows) {
         const totalRows = dataRows.length;
         const seen = new Set();
@@ -92,11 +89,11 @@ const ScoringEngine = {
         return Math.round(score);
     },
 
-    // Calculate completeness score(missing value detection)
+    // Calculate completeness score with penalty mechanism
     calculateCompleteness: function (dataRows, headers) {
-        let columnMissingRates = [];
+        const columnCompleteRates = [];
 
-        // Calculate missing rate for each column
+        // Calculate complete rate for each column
         for (let j = 0; j < headers.length; j++) {
             let missingCount = 0;
 
@@ -107,21 +104,25 @@ const ScoringEngine = {
             }
 
             const missingRate = missingCount / dataRows.length;
-            columnMissingRates.push(missingRate);
+            const completeRate = (1 - missingRate) * 100;
+            columnCompleteRates.push(completeRate);
         }
 
-        // Calculate average missing Rate
-        const avgMissingRate = columnMissingRates.reduce((a, b) => a + b, 0) / headers.length;
+        // Calculate average completeness
+        const avgScore = columnCompleteRates.reduce((a, b) => a + b, 0) / headers.length;
+        
+        // Find minimum completeness
+        const minScore = Math.min(...columnCompleteRates);
 
-        // Calculated completeness score
-        const score = (1 - avgMissingRate) * 100;
+        // Apply penalty: average × sqrt(min/100)
+        const score = avgScore * Math.sqrt(minScore / 100);
+        
         return Math.round(score);
     },
 
-    // Calculate accuracy score (outlier detection for numeric colomns)
+    // Calculate accuracy score (outlier detection for numeric columns)
     calculateAccuracy: function (dataRows, headers) {
-        let outlierCount = 0;
-        let totalNumericCells = 0;
+        const columnRates = [];
 
         // Check each column
         for (let j = 0; j < headers.length; j++) {
@@ -131,35 +132,131 @@ const ScoringEngine = {
             // Collect numeric values from this column
             for (let i = 0; i < dataRows.length; i++) {
                 const val = dataRows[i][j];
-                // Check for empty values
-                if (val === "" || val === null || val === undefined) { continue; }
-                // Check if it is a number
-                if (!/^-?\d*\.?\d+$/.test(val.toString().trim())) {
-                    isPureNumeric = false;
-                    break; // Not a numeric column, skip it
+                
+                // Skip empty values
+                if (val === "" || val === null || val === undefined) { 
+                    continue; 
                 }
-                columnValues.push(parseFloat(val));
+                
+                // Try to parse as number
+                const strVal = val.toString().trim();
+                const numVal = parseFloat(strVal);
+                
+                if (isNaN(numVal)) {
+                    isPureNumeric = false;
+                    break;
+                }
+                
+                columnValues.push(numVal);
             }
 
-            if (!isPureNumeric || columnValues.length === 0) { continue; }
-            // Update total numeric cells
-            totalNumericCells += columnValues.length;
+            // Skip if not numeric or empty
+            if (!isPureNumeric || columnValues.length === 0) { 
+                continue; 
+            }
+
             // Calculate mean and standard deviation
             const mean = columnValues.reduce((a, b) => a + b, 0) / columnValues.length;
-            const standardDeviation = Math.sqrt(columnValues.reduce((sum, value) => sum + (value - mean) ** 2, 0) / columnValues.length);
-            // Count outliers
-            outlierCount += columnValues.filter(value => value < mean - 3 * standardDeviation || value > mean + 3 * standardDeviation).length;
+            const variance = columnValues.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / columnValues.length;
+            const standardDeviation = Math.sqrt(variance);
+            
+            // Count outliers (outside 3 standard deviations)
+            const outlierCount = columnValues.filter(value => 
+                value < mean - 3 * standardDeviation || value > mean + 3 * standardDeviation
+            ).length;
+            
+            // Calculate column score
+            const columnScore = ((columnValues.length - outlierCount) / columnValues.length) * 100;
+            columnRates.push(columnScore);
         }
 
-        const score = totalNumericCells === 0 ? null : (totalNumericCells - outlierCount) / totalNumericCells * 100;
-        return score === null ? null : Math.round(score);
+        // Return null if no numeric columns
+        if (columnRates.length === 0) {
+            return null;
+        }
+
+        // Calculate average accuracy
+        const avgScore = columnRates.reduce((a, b) => a + b, 0) / columnRates.length;
+        
+        // Find minimum accuracy
+        const minScore = Math.min(...columnRates);
+
+        // Apply penalty: average × sqrt(min/100)
+        const score = avgScore * Math.sqrt(minScore / 100);
+        
+        return Math.round(score);
     },
 
-    // Calculate consistency score
-    calculateConsistency: function (dataRows) {
-        // TODO: after the discussion
-        // return null temprately
-        return null;
-    }
+    // Calculate consistency score (data type consistency)
+    calculateConsistency: function (dataRows, headers) {
+        const columnRates = [];
 
+        // Check each column
+        for (let j = 0; j < headers.length; j++) {
+            const typeCount = {
+                'numeric': 0,
+                'text': 0,
+                'date': 0,
+                'boolean': 0
+            };
+            let nonEmptyCount = 0;
+
+            // Analyze each value in the column
+            for (let i = 0; i < dataRows.length; i++) {
+                const val = dataRows[i][j];
+
+                // Skip empty values
+                if (val === "" || val === null || val === undefined) {
+                    continue;
+                }
+
+                nonEmptyCount++;
+                const valStr = val.toString().trim();
+
+                // Check type
+                if (['true', 'false', 'yes', 'no'].includes(valStr.toLowerCase())) {
+                    typeCount['boolean']++;
+                } else if (valStr.includes('/') || valStr.includes('-')) {
+                    // Simple date check - if contains digits with / or -
+                    if (/\d/.test(valStr)) {
+                        typeCount['date']++;
+                    } else {
+                        typeCount['text']++;
+                    }
+                } else {
+                    // Try to parse as number
+                    const numVal = parseFloat(valStr);
+                    if (!isNaN(numVal) && isFinite(numVal)) {
+                        typeCount['numeric']++;
+                    } else {
+                        typeCount['text']++;
+                    }
+                }
+            }
+
+            // Calculate consistency for this column
+            let columnScore;
+            if (nonEmptyCount === 0) {
+                columnScore = 100; // All empty, consider as consistent
+            } else {
+                // Find dominant type
+                const maxCount = Math.max(...Object.values(typeCount));
+                columnScore = (maxCount / nonEmptyCount) * 100;
+            }
+
+            columnRates.push(columnScore);
+        }
+
+        // Calculate average consistency
+        const avgScore = columnRates.length > 0 ? 
+            columnRates.reduce((a, b) => a + b, 0) / columnRates.length : 0;
+        
+        // Find minimum consistency
+        const minScore = columnRates.length > 0 ? Math.min(...columnRates) : 0;
+
+        // Apply penalty: average × sqrt(min/100)
+        const score = avgScore * Math.sqrt(minScore / 100);
+        
+        return Math.round(score);
+    }
 }
