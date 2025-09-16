@@ -5,8 +5,6 @@
 const ScoringEngine = {
     // Main analysis function
     analyzeDataQuality: function () {
-        console.log("Starting data quality analysis");
-
         // Get original data from DataStore
         const data = DataStore.originalData;
 
@@ -25,16 +23,9 @@ const ScoringEngine = {
         const dataRows = data.slice(1);
 
         // Calculate four dimensions
-        console.log("Calculating uniqueness...");
-        const uniquenessScore = ScoringEngine.calculateUniqueness(dataRows);
-
-        console.log("Calculating completeness...");
+        const uniquenessScore = ScoringEngine.calculateUniqueness(dataRows, headers);
         const completenessScore = ScoringEngine.calculateCompleteness(dataRows, headers);
-
-        console.log("Calculating accuracy...");
         const accuracyScore = ScoringEngine.calculateAccuracy(dataRows, headers);
-
-        console.log("Calculating consistency...");
         const consistencyScore = ScoringEngine.calculateConsistency(dataRows, headers);
 
         // Calculate overall score
@@ -75,7 +66,7 @@ const ScoringEngine = {
     },
 
     // Calculate uniqueness score (row-level duplicate detection)
-    calculateUniqueness: function (dataRows) {
+    calculateUniqueness: function (dataRows, headers) {
         const totalRows = dataRows.length;
         const seen = new Set();
 
@@ -205,7 +196,7 @@ const ScoringEngine = {
             for (let i = 0; i < dataRows.length; i++) {
                 const val = dataRows[i][j];
 
-                // Skip empty values
+                // Skip empty values - match Python's condition exactly
                 if (val === "" || val === null || val === undefined) {
                     continue;
                 }
@@ -213,7 +204,7 @@ const ScoringEngine = {
                 nonEmptyCount++;
                 const valStr = val.toString().trim();
 
-                // Check type
+                // Check type - match Python logic exactly
                 if (['true', 'false', 'yes', 'no'].includes(valStr.toLowerCase())) {
                     typeCount['boolean']++;
                 } else if (valStr.includes('/') || valStr.includes('-')) {
@@ -225,10 +216,14 @@ const ScoringEngine = {
                     }
                 } else {
                     // Try to parse as number
-                    const numVal = parseFloat(valStr);
-                    if (!isNaN(numVal) && isFinite(numVal)) {
-                        typeCount['numeric']++;
-                    } else {
+                    try {
+                        const numVal = parseFloat(valStr);
+                        if (!isNaN(numVal) && isFinite(numVal)) {
+                            typeCount['numeric']++;
+                        } else {
+                            typeCount['text']++;
+                        }
+                    } catch {
                         typeCount['text']++;
                     }
                 }
