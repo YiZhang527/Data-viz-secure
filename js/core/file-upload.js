@@ -7,7 +7,6 @@ const FileHandler = {
      * Initialize the file handler module
      */
     initialize: function() {
-        console.log("Initializing FileHandler...");
         // Set up event listeners
         document.getElementById('file-upload').addEventListener('change', this.handleFileSelected);
     },
@@ -48,12 +47,11 @@ const FileHandler = {
      * @param {string} data - The file data
      */
     processFileData: function(data) {
-        console.log("Processing file data...");
         
         let jsonData; // This will always be a 2D array
         
         if (DataStore.currentFile.name.endsWith('.csv')) {
-            // ✅ Process CSV as 2D array (include header row)
+            // Process CSV as 2D array (include header row)
             const parsed = Papa.parse(data, {
                 header: false, // ❗ No header, so output rows as arrays
                 dynamicTyping: false,
@@ -76,19 +74,21 @@ const FileHandler = {
             });
         }
         
-        // ✅ Store the original data (2D array)
+        // Store the original data (2D array)
         DataStore.originalData = jsonData;
         
-        // ✅ Deep copy to currentData
+        // Deep copy to currentData
         DataStore.currentData = jsonData.map(row => [...row]);
         
         // Reset operations history
         DataStore.operations = [];
+
+        // Analyze data quality
+        DataAnalyzer.analyze();
         
         // Display data cleaning options
         UIController.showDataCleaningArea();
         
-        // ✅ No validator call here (validator handles its own logic)
     }
 };
 
