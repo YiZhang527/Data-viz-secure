@@ -3,20 +3,8 @@
  * Handles data export functionality
  */
 const ExportManager = {
-    initialize: function() {
-    console.log("Initializing ExportManager...");
-    // Set up event listeners with delay
-    setTimeout(() => {
-        const downloadBtn = document.getElementById('download-cleaned-data');
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', this.downloadCleanedData);
-            console.log("Cleaned data download button event listener attached");
-        }
-    }, 1000);
-},
     
     downloadCleanedData: function() {
-        console.log("Downloading cleaned data...");
         // Check if current data exists
         if (!DataStore.currentData || DataStore.currentData.length === 0) {
             alert('No cleaned data available. Please clean data first.');

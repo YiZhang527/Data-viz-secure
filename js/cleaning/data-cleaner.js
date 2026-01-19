@@ -1,7 +1,6 @@
 const DataCleaner = {
 
     removeEmptyRows: function () {
-        console.log("Removing empty rows...");
 
         // Return if already done
         if (DataStore.operations.includes("Remove Empty Rows")) {
@@ -62,10 +61,10 @@ const DataCleaner = {
         UIController.displayCleaningResults({
             message: message
         });
+
     },
 
     removeDuplicateRows: function () {
-        console.log("Removing duplicate rows...");
 
         if (DataStore.operations.includes("Remove Duplicate Rows")) {
             if (DataStore.cleaningResults && DataStore.cleaningResults.removeDuplicateRowsMessage) {
@@ -118,7 +117,6 @@ const DataCleaner = {
 
 
     detectOutliers: function () {
-        console.log("Detecting outliers...");
 
         // Return if already done
         if (DataStore.operations.includes("Detect Outliers")) {

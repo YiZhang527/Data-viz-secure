@@ -1,43 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Data Cleaning & Visualization Platform</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Reference to combined CSS file -->
-    <link rel="stylesheet" href="css/main.css">
-    
+<!DOCTYPE html> <!-- HTML5 document declaration -->
+<html lang="en"> <!-- Start of HTML document, English language -->
+
+<head> <!-- Document metadata container -->
+    <title>Data Quality Checking & Cleaning Platform</title> <!-- Browser tab title -->
+    <meta charset="utf-8"> <!-- Allows Chinese, emoji display -->
+
+    <link rel="stylesheet" href="css/main.css"> <!-- Page styling -->
+
     <!-- External libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Excel reader library -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <!-- Advanced Excel processing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Data Cleaning & Visualization Platform</h1>
-        </div>
-        
+    <!-- CSV parser library -->
+</head> <!-- End of document metadata -->
+
+<body> <!-- Start of visible page content -->
+    <div class="container"> <!-- Main wrapper for all content -->
+        <div class="header"> <!-- Top header section -->
+            <h1>Data Quality Checking & Cleaning Platform</h1> <!-- Main page title -->
+        </div> <!-- End of header -->
+
         <!-- Top section with upload and file info -->
-        <div class="top-section">
+        <div class="top-section"> <!-- Container for upload area and file info -->
             <!-- Left side: Upload area -->
-            <div class="upload-section">
-                <div class="upload-box">
-                    <h2>Upload File</h2>
+            <div class="upload-section"> <!-- Container for upload functionality -->
+                <div class="upload-box"> <!-- Styled upload container -->
+                    <h2>Upload File</h2> <!-- Secondary heading -->
                     <input type="file" id="file-upload" accept=".csv, .xlsx, .xls">
                     <p>Supports CSV and Excel formats</p>
                 </div>
             </div>
-            
-            <!-- Right side: File information - CHANGED ID to file-info-display -->
-            <div class="file-info-section" id="file-info-display">
-                <div class="file-info-placeholder">
-                    Upload a file to view information
+
+            <!-- Right side: File information - file-info-display -->
+            <div class="file-info-section" id="file-info-display"> <!-- File info container -->
+                <div class="file-info-placeholder"> <!-- Placeholder text container -->
+                    Upload a file to view information <!-- Placeholder message -->
                 </div>
             </div>
         </div>
-        
+
         <!-- Split content area -->
         <div class="split-content">
             <!-- Left panel - Validation Results -->
@@ -47,34 +50,49 @@
                     <!-- Results will be populated by JavaScript -->
                 </div>
             </div>
-            
+
             <!-- Right panel - Cleaning Options -->
             <div class="right-panel">
                 <!-- Data cleaning options area - REMOVED file-info-display element -->
                 <div id="data-cleaning">
-    <div class="file-info-placeholder">
-        Upload a file to access cleaning options
-    </div>
-</div>
+                    <div class="file-info-placeholder">
+                        Upload a file to access cleaning options
+                    </div>
+                </div>
             </div>
         </div>
-        
+
         <!-- Privacy statement area -->
         <div class="privacy-note">
             <strong>Privacy Guarantee:</strong> Your data stays 100% private. All processing occurs locally in your
             browser - we never store, transmit, or access your information.
         </div>
     </div>
-    
+
     <!-- Include JavaScript modules -->
-    <!-- Note: Order matters! First load modules, then main.js -->
-    <script src="js/file-handler.js"></script>
-    <script src="js/data-cleaner.js"></script>
-    <script src="js/cleaned-export.js"></script>
-    <script src="js/annotated-export.js"></script>
-    <script src="js/data-validator.js"></script><!-- New validator script -->
-    <script src="js/ui-controller.js"></script>
+    <!-- Core modules -->
+    <script src="js/core/data-store.js"></script>
+    <script src="js/core/file-upload.js"></script>
+
+    <!-- Central analyzer (load before other analysis modules) -->
+    <script src="js/data-analyzer.js"></script>
+
+    <!-- Analysis modules -->
+    <script src="js/analysis/data-validator.js"></script>
+    <script src="js/analysis/scoring-engine.js"></script>
+
+    <!-- Cleaning module -->
+    <script src="js/cleaning/data-cleaner.js"></script>
+
+    <!-- Export modules -->
+    <script src="js/export/cleaned-export.js"></script>
+    <script src="js/export/annotated-export.js"></script>
+
+    <!-- UI module -->
+    <script src="js/ui/ui-controller.js"></script>
+
+    <!-- Main application (load last) -->
     <script src="js/main.js"></script>
-    <script src="js/scoring-engine.js"></script>
 </body>
+
 </html>

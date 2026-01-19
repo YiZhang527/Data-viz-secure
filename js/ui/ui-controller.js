@@ -7,7 +7,6 @@
 const UIController = {
     // Initialize UI
     initialize: function() {
-        console.log("Initializing UIController...");
         
         // Hide cleaning options initially
         const dataCleaning = document.getElementById('data-cleaning');
@@ -18,7 +17,6 @@ const UIController = {
     
     // Update file info display
     updateFileInfo: function(file) {
-        console.log("Updating file info...");
         const fileInfoDisplay = document.getElementById('file-info-display');
         
         if (fileInfoDisplay) {
@@ -36,7 +34,6 @@ const UIController = {
     
     // Show data cleaning options
     showDataCleaningArea: function() {
-        console.log("Showing data cleaning area");
         const dataCleaning = document.getElementById('data-cleaning');
         
         if (dataCleaning) {
@@ -90,7 +87,6 @@ if (removeDuplicateRowsBtn) {
     
     // Display cleaning results
     displayCleaningResults: function(results) {
-        console.log("Displaying cleaning results...");
         const resultsDiv = document.getElementById('cleaning-results');
         
         if (resultsDiv) {
@@ -100,7 +96,6 @@ if (removeDuplicateRowsBtn) {
     
     // Display outlier detection results
     displayOutlierResults: function(columnResults, totalOutliers) {
-        console.log("Displaying outlier results...");
         const resultsDiv = document.getElementById('cleaning-results');
         
         if (resultsDiv) {
@@ -142,6 +137,5 @@ window.UIController = UIController;
 
 // Initialize the UI controller when the document is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM Content Loaded - Initializing UI");
     UIController.initialize();
 });
